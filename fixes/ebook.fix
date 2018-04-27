@@ -1,0 +1,208 @@
+############################################################
+#                                                          #
+# ebook.fix - Fix-Datei für E-Bookpakete                   #
+#                                                          #
+# 2018-04-09 Georg Mayr-Duffner                            #
+#            georg.mayr-duffner@wu.ac.at                   #
+#                                                          #
+############################################################
+
+add_field(sigel, {{sigel}})
+if any_match('sigel', 'leer')
+    remove_field('sigel')
+end
+
+marc_set('LDR/18', 'c')
+
+marc_set('008/23', 'o')
+
+marc_map('008/15-17', country)
+if marc_match('008/35-37', '[a-z]{3}')
+    marc_map('008/35-37', lang)
+end
+
+if marc_match('008/6', 'e')
+    marc_set('008/6', '|')
+    marc_set('008/11-14', '||||') 
+end
+
+if marc_match('0242', 'DOI')
+    marc_set('0242', 'doi')
+end
+
+unless marc_match('024a', '10.\d{4,}/.+')
+    do marc_each()
+        if marc_match('856u', '10.\d{4,}/.+')
+            marc_map('856u', doi)
+            replace_all(doi, '.*(10.\d{4,}/.+)$', '$1')
+            marc_add('024', a, $.doi, 2, 'doi')
+        end
+    end
+end
+
+if marc_has('040')
+    unless marc_has('040e')
+        marc_set('040e', 'rda')
+    end
+else
+    marc_add('040', e, 'rda')
+end
+
+# Abgleich Sprache 008~041a
+if marc_has('041a')
+    unless is_string(lang)
+        marc_map('041a', lang)
+        marc_set('008/35-37', $.lang)
+    end
+elsif is_string(lang)
+    marc_add('041', a, $.lang)
+else
+    marc_add('041', a, 'ger')
+    marc_set('008/35-37', 'ger')
+end
+
+# Abgleich Land 008~044c
+if marc_has('044c')
+    unless is_string(country)
+        marc_map('044c', country)
+        lookup("country", "iso3166H2marc.csv", sep_char:'|')
+        # lookup("country", {{ISO2MARC}}, sep_char:'|')
+        marc_set('008/15-17', $.country)
+    end
+elsif is_string(country)
+        lookup("country", "marc2iso3166H.csv", sep_char:'|')
+        # lookup("country", {{MARC2ISO}}, sep_char:'|')
+        marc_add('044', c, $.country)
+# else
+#     marc_add('044', c, 'XA-DE')
+#     marc_set('008/15-17', 'gw ')
+end
+
+# Beziehungskennzeichen in 100
+do marc_each()
+    if marc_has('100e')
+        if marc_match('100e', '[Ee]ditor')
+            marc_set('1004', 'edt')
+            marc_remove('100e')
+            marc_cut(100, tmp700)
+            set_field(tmp700.*.tag, 700)
+            marc_paste(tmp700)
+        elsif marc_match('100e', '[Cc]ontributor')
+            marc_set('1004', 'ctb')
+            marc_remove('100e')
+            marc_cut(100, tmp700)
+            set_field(tmp700.*.tag, 700)
+            marc_paste(tmp700)
+        elsif marc_match('100e', '[Aa]uthor')
+            marc_set('1004', 'aut')
+            marc_remove('100e')
+        end
+    else
+        unless marc_has('1004')
+            marc_set('1004', 'aut')
+        end
+    end
+end
+
+# Beziehungskennzeichen in 700
+do marc_each()
+    if marc_has('700e')
+        if marc_match('700e', '[Aa]uthor')
+            marc_set('7004', 'aut')
+            marc_remove('700e')
+        elsif marc_match('700e', '[Ee]ditor')
+            marc_set('7004', 'edt')
+            marc_remove('700e')
+        elsif marc_match('700e', '[Cc]ontributor')
+            marc_set('7004', 'ctb')
+            marc_remove('700e')
+        end
+    else
+        unless marc_has('1004')
+            marc_set('1004', 'ctb')
+        end
+    end
+end
+
+# ISBD-Interpunktion in Personen entfernen
+marc_replace_all('100a', '^(.*),\s*$', '$1')
+marc_replace_all('700a', '^(.*),\s*$', '$1')
+
+# Title manipulation
+marc_cut(245, title)
+set_field(title.*.ind1, 0)
+remove_field(title.*.subfields.*.y)
+replace_all(title.*.subfields.*.a, '^(.+)\s[/:]$', '$1')
+replace_all(title.*.subfields.*.b, '^(.+)\s/$', '$1')
+replace_all(title.*.subfields.*.c, '^(.+)\.$', '$1')
+marc_paste(title)
+
+if marc_has('260')
+    marc_cut(260, publication)
+    set_field(publication.*.tag, 264)
+    set_field(publication.*.ind2, 1)
+    marc_paste(publication)
+end
+
+# ISBD-Interpunktion in Veröffentlichungsangaben entfernen
+marc_replace_all('264a', '^(.+)\s:\s*$', '$1')
+marc_replace_all('264b', '^(.+),\s*$', '$1')
+
+# Veröffentlichungsdatum auf Jahreszahl einschränken
+marc_replace_all('264c', '(\d{4})\d+', '$1')
+
+if marc_has('300')
+    unless marc_match('300a', '[Oo]nline[-\s][Rr]es+ource')
+        marc_replace_all('300a', '^(.+)$', '1 Online-Ressource $1')
+    end
+    if marc_match('300a', 'online resource')
+        marc_replace_all('300a', 'online resource', 'Online-Ressource')
+    end
+end
+
+if marc_has('300[1]')
+    marc_cut('300[1]', 'tmp300')
+    set_field(tmp300.*.ind1, 0)
+    marc_paste(tmp300)
+end
+
+# RDA-Kategorien 336, 337, 338
+if marc_has('33.')
+    marc_remove('33.')
+end
+
+marc_add('336', b, 'txt')
+marc_add('337', b, 'c')
+marc_add('338', b, 'cr')
+
+if marc_has('347')
+    marc_remove('347')
+end
+marc_add('347', a, 'Textdatei', b, 'PDF')
+
+marc_set('856[4,0]3', 'Volltext')
+
+# E-Book-Sigel
+if marc_match('003', 'Vahlen')
+    unless marc_match('912a', 'ZDB-128-VEL')
+        marc_add('912', a, 'ZDB-128-VEL')
+    end
+    if marc_match('950a', '[Pp]ersonalmanagement')
+        marc_add('912', a, 'ZDB-128-VPM')
+    else
+        marc_add('912', a, 'ZDB-128-VAB')
+    end
+end
+if exists(sigel)
+    if any_match(sigel, 'ZDB-18-')
+        unless marc_match('912a', 'ZDB-18-NOL')
+            marc_add('912', a, 'ZDB-18-NOL')
+        end
+    end
+    unless marc_match('912a', $.sigel)
+        marc_add('912', a, $.sigel)
+    end
+end
+marc_remove('912b')
+marc_remove('003')
+
