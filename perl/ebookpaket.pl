@@ -1,3 +1,5 @@
+#!/bin/perl 
+
 ############################################################
 #                                                          #
 # ebookpaket.pl - Aufbereitungsskript für EBook-Paket-     #
@@ -8,14 +10,22 @@
 #                                                          #
 ############################################################
 
+# make it work if running on unix and Catmandu is not installed system wide
+# without the need of setting PERL5LIB
+if ( exists $ENV{'HOME'} && -d "$ENV{'HOME'}/perl5/lib/perl5" ) {
+  use lib "$ENV{'HOME'}/perl5/lib/perl5";
+}
+
 use Modern::Perl '2016';
 use Getopt::Long;
 use Catmandu;
 use File::Basename;
+use File::Spec;
 use Log::Any::Adapter;
 use Log::Log4perl;
 use utf8;
 use open ':std', ':encoding(cp850)';
+
 
 GetOptions(#'verbose|v'       => \my $verbose,
            'debug|d'         => \my $debug,
@@ -28,12 +38,15 @@ GetOptions(#'verbose|v'       => \my $verbose,
 
 if ($help){usage()};
 
-my $dir = dirname(__FILE__);
+# OS-independent separator
+my $SEP = File::Spec->catfile("","");
+my $dir = File::Spec->rel2abs(dirname(__FILE__));
+my $datadir = $dir . $SEP . "data";
 # $dir =~ s:\\:/:g;
 
 if ($debug){
     Log::Any::Adapter->set('Log4perl');
-    Log::Log4perl::init("$dir/data/log4perl.conf");
+    Log::Log4perl::init($datadir . $SEP . 'log4perl.conf');
 
     my $logger = Log::Log4perl->get_logger('myprog');
 
@@ -70,8 +83,8 @@ unless ($fixfile){
 }
 
 my $fixer = Catmandu::Fix->new(
-    variables => { ISO2MARC => $dir . '\data\iso3166H2marc.csv',
-                   MARC2ISO => $dir . '\data\marc2iso3166H.csv',
+    variables => { ISO2MARC => "${datadir}${SEP}iso3166H2marc.csv",
+                   MARC2ISO => "${datadir}${SEP}marc2iso3166H.csv",
                    sigel    => $sigel,
                  },
     fixes => [$fixfile],
