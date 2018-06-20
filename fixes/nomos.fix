@@ -1,0 +1,35 @@
+unless marc_match('912a', 'ZDB-18-NOL')
+    marc_add('912', a, 'ZDB-18-NOL')
+    myrc_add('912', a, 'ZDB-18-NSW')
+end
+
+if marc_match('950a', 'Paket Europapolitik')
+    marc_add('912', a, 'ZDB-18-NEP')
+end
+if marc_match('950a', 'Paket Europa')
+    marc_add('912', a, 'ZDB-18-NEP')
+end
+if marc_match('950a', 'Paket Geschichte')
+    marc_add('912', a, 'ZDB-18-NOG')
+end
+if marc_match('950a', 'Paket Medien- und Kommunikationswissenschaft')
+    marc_add('912', a, 'ZDB-18-NOM')
+end
+if marc_match('950a', 'Paket Philosophie')
+    marc_add('912', a, 'ZDB-18-NPH')
+end
+if marc_match('950a', 'Paket Politikwissenschaft')
+    marc_add('912', a, 'ZDB-18-NOP')
+end
+#if marc_match('950a', 'Paket Religion')
+#   marc_add('912', a, 'ZDB-18-Nxx')
+#end
+if marc_match('950a', 'Paket Sozialwirtschaft / Soziale Arbeit')
+    marc_add('912', a, 'ZDB-18-NST')
+end
+if marc_match('950a', 'Paket Soziologie')
+    marc_add('912', a, 'ZDB-18-NOZ')
+end
+if marc_match('950a', 'Paket Wirtschaft')
+    marc_add('912', a, 'ZDB-18-NOW')
+end

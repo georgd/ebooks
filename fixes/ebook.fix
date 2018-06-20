@@ -12,19 +12,44 @@ if any_match('sigel', 'leer')
     remove_field('sigel')
 end
 
-marc_set('LDR/18', 'c')
+marc_set('LDR/6', 'a')
+marc_set('LDR/17-23', '#c#4500')
 
-marc_set('008/23', 'o')
-
-marc_map('008/15-17', country)
-if marc_match('008/35-37', '[a-z]{3}')
-    marc_map('008/35-37', lang)
+unless marc_has('008')
+    marc_set('008/0-5', {{today}})
+    marc_set('008/6', '|')
+    marc_map('260c', pubyear)
+    marc_set('008/7-10', $.pubyear)
+    marc_set('008/11-39', '####gw######o###############u')
 end
 
 if marc_match('008/6', 'e')
     marc_set('008/6', '|')
     marc_set('008/11-14', '||||') 
 end
+if marc_match('008/6', 's')
+    marc_set('008/6', '|')
+end
+if marc_match('008/6', 't')
+    marc_set('008/6', '|')
+end
+
+marc_map('008/15-17', country)
+if marc_match('008/35-37', '[a-z]{3}')
+    marc_map('008/35-37', lang)
+end
+
+marc_set('008/23', 'o')
+
+unless marc_match('008/29', '1')
+    marc_set('008/29', '#')
+end
+
+unless marc_match('008/30', '1')
+    marc_set('008/30', '#')
+end
+
+marc_set('008/39', 'u')
 
 if marc_match('0242', 'DOI')
     marc_set('0242', 'doi')
@@ -35,7 +60,7 @@ unless marc_match('024a', '10.\d{4,}/.+')
         if marc_match('856u', '10.\d{4,}/.+')
             marc_map('856u', doi)
             replace_all(doi, '.*(10.\d{4,}/.+)$', '$1')
-            marc_add('024', a, $.doi, 2, 'doi')
+            marc_add('024[7]', a, $.doi, 2, 'doi')
         end
     end
 end
@@ -65,13 +90,13 @@ end
 if marc_has('044c')
     unless is_string(country)
         marc_map('044c', country)
-        lookup("country", "iso3166H2marc.csv", sep_char:'|')
-        # lookup("country", {{ISO2MARC}}, sep_char:'|')
+        # lookup("country", "iso3166H2marc.csv", sep_char:'|')
+        lookup("country", '{{ISO2MARC}}', sep_char:'|')
         marc_set('008/15-17', $.country)
     end
 elsif is_string(country)
-        lookup("country", "marc2iso3166H.csv", sep_char:'|')
-        # lookup("country", {{MARC2ISO}}, sep_char:'|')
+        # lookup("country", "marc2iso3166H.csv", sep_char:'|')
+        lookup("country", '{{MARC2ISO}}', sep_char:'|')
         marc_add('044', c, $.country)
 # else
 #     marc_add('044', c, 'XA-DE')
@@ -125,12 +150,13 @@ do marc_each()
 end
 
 # ISBD-Interpunktion in Personen entfernen
-marc_replace_all('100a', '^(.*),\s*$', '$1')
-marc_replace_all('700a', '^(.*),\s*$', '$1')
+marc_replace_all('100a', '^(.*)[.,]\s*$', '$1')
+marc_replace_all('700a', '^(.*)[.,]\s*$', '$1')
 
 # Title manipulation
 marc_cut(245, title)
 set_field(title.*.ind1, 0)
+remove_field(title.*.subfields.*.h)
 remove_field(title.*.subfields.*.y)
 replace_all(title.*.subfields.*.a, '^(.+)\s[/:]$', '$1')
 replace_all(title.*.subfields.*.b, '^(.+)\s*[/:\.]4$', '$1')
@@ -142,6 +168,7 @@ marc_paste(title)
 if marc_has('260')
     marc_cut(260, publication)
     set_field(publication.*.tag, 264)
+    set_field(publication.*.ind1, 0)
     set_field(publication.*.ind2, 1)
     marc_paste(publication)
 end
@@ -149,9 +176,13 @@ end
 # ISBD-Interpunktion in Veröffentlichungsangaben entfernen
 marc_replace_all('264a', '^(.+)\s:\s*$', '$1')
 marc_replace_all('264b', '^(.+),\s*$', '$1')
+marc_replace_all('264b', '^(.+)\s;\s*$', '$1')
 
 # Veröffentlichungsdatum auf Jahreszahl einschränken
 marc_replace_all('264c', '(\d{4})\d+', '$1')
+
+# Spezialfall Campusverlag: Ort aus Verlagsnamen entfernen
+marc_replace_all('264b', 'Campus Frankfurt / New York', 'Campus')
 
 if marc_has('300')
     unless marc_match('300a', '[Oo]nline[-\s][Rr]es+ource')
@@ -182,24 +213,23 @@ if marc_has('347')
 end
 marc_add('347', a, 'Textdatei', b, 'PDF')
 
+if marc_match('003', 'Thieme')  # verallgemeinern?
+    marc_cut(490, tmp490)
+    set_field(tmp490.*.ind2, 0)
+    marc_paste(tmp490)
+end
+
+marc_remove('856[4,0]q')
 marc_set('856[4,0]3', 'Volltext')
+marc_replace_all('856u', '^\s+(\S+)\s+$', $1)
 
 # E-Book-Sigel
 if marc_match('003', 'Vahlen')
-    unless marc_match('912a', 'ZDB-128-VEL')
-        marc_add('912', a, 'ZDB-128-VEL')
-    end
-    if marc_match('950a', '[Pp]ersonalmanagement')
-        marc_add('912', a, 'ZDB-128-VPM')
-    else
-        marc_add('912', a, 'ZDB-128-VAB')
-    end
+    include ('vahlen.fix')
 end
 if exists(sigel)
     if any_match(sigel, 'ZDB-18-')
-        unless marc_match('912a', 'ZDB-18-NOL')
-            marc_add('912', a, 'ZDB-18-NOL')
-        end
+        include ('nomos.fix')
     end
     unless marc_match('912a', $.sigel)
         marc_add('912', a, $.sigel)

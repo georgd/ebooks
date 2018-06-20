@@ -1,0 +1,46 @@
+############################################################
+#                                                          #
+# vahlen.fix - Fix-Datei für E-Bookpakete (Vahlen-Verlag)  #
+#                                                          #
+# 2018-06-12 Georg Mayr-Duffner                            #
+#            georg.mayr-duffner@wu.ac.at                   #
+#                                                          #
+############################################################
+
+unless marc_match('912a', 'ZDB-128-VEL')
+    marc_add('912', a, 'ZDB-128-VEL')
+end
+
+if marc_match('950a', 'Allgemeine Betriebswirtschaftslehre')
+    marc_add('912', a, 'ZDB-128-VAB')
+end
+if marc_match('950a', 'Buchführung, Bilanz, Steuern')
+    marc_add('912', a, 'ZDB-128-VBB')
+end
+if marc_match('950a', 'Investition und Finanzierung')
+    marc_add('912', a, 'ZDB-128-VIF')
+end
+if marc_match('950a', 'Kostenrechnung und Controlling')
+    marc_add('912', a, 'ZDB-128-VKC')
+end
+if marc_match('950a', 'Marketing und Handel')
+    marc_add('912', a, 'ZDB-128-VMH')
+end
+if marc_match('950a', 'Mathematik für Wirtschaftswissenschaftler')
+    marc_add('912', a, 'ZDB-128-VMW')
+end
+if marc_match('950a', 'Personalmanagement')
+    marc_add('912', a, 'ZDB-128-VPM')
+end
+if marc_match('950a', 'Produktion und Logistik')
+    marc_add('912', a, 'ZDB-128-VPL')
+end
+if marc_match('950a', 'Recht für Wirtschaftswissenschaftler')
+    marc_add('912', a, 'ZDB-128-VRW')
+end
+if marc_match('950a', 'Unternehmensführung, Management, Organisation')
+    marc_add('912', a, 'ZDB-128-VUM')
+end
+if marc_match('950a', 'Volkswirtschaftslehre')
+    marc_add('912', a, 'ZDB-128-VVW')
+end
