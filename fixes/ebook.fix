@@ -90,13 +90,13 @@ end
 if marc_has('044c')
     unless is_string(country)
         marc_map('044c', country)
-        lookup("country", "iso3166H2marc.csv", sep_char:'|')
-        # lookup("country", {{ISO2MARC}}, sep_char:'|')
+        # lookup("country", "iso3166H2marc.csv", sep_char:'|')
+        lookup("country", '{{ISO2MARC}}', sep_char:'|')
         marc_set('008/15-17', $.country)
     end
 elsif is_string(country)
-        lookup("country", "marc2iso3166H.csv", sep_char:'|')
-        # lookup("country", {{MARC2ISO}}, sep_char:'|')
+        # lookup("country", "marc2iso3166H.csv", sep_char:'|')
+        lookup("country", '{{MARC2ISO}}', sep_char:'|')
         marc_add('044', c, $.country)
 # else
 #     marc_add('044', c, 'XA-DE')
