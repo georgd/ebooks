@@ -16,7 +16,9 @@ if ( exists $ENV{'HOME'} && -d "$ENV{'HOME'}/perl5/lib/perl5" ) {
   use lib "$ENV{'HOME'}/perl5/lib/perl5";
 }
 
-use Modern::Perl '2016';
+use v5.10;
+use strict;
+use warnings;
 use Getopt::Long;
 use Catmandu;
 use File::Basename;
