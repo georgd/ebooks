@@ -16,7 +16,7 @@ if ( exists $ENV{'HOME'} && -d "$ENV{'HOME'}/perl5/lib/perl5" ) {
   use lib "$ENV{'HOME'}/perl5/lib/perl5";
 }
 
-use v5.10;
+use v5.12;
 use strict;
 use warnings;
 use Getopt::Long;
