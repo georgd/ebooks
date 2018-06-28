@@ -48,6 +48,7 @@ if ($help){usage()};
 my $SEP = File::Spec->catfile("","");
 my $dir = File::Spec->rel2abs(dirname(__FILE__));
 my $datadir = $dir . $SEP . "data";
+my $fixdir = $dir . $SEP . ".." . $SEP . "fixes";
 
 if ($debug){
     Log::Any::Adapter->set('Log4perl');
@@ -84,7 +85,7 @@ unless ($sigel){
 unless ($fixfile){
     say 'Bitte ein Fixfile angeben oder leer lassen für Standardfixfile "ebook.fix".';
     chomp ($fixfile = <STDIN>);
-    $fixfile = 'ebook.fix' unless $fixfile;
+    $fixfile = "${fixdir}${SEP}ebook.fix" unless $fixfile;
     die 'No fix file' unless -e $fixfile;
 }
 
