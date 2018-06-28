@@ -16,6 +16,7 @@ marc_set('LDR/6', 'a')
 marc_set('LDR/17-23', '#c#4500')
 
 unless marc_has('008')
+    marc_set(008,_,0000000000000000000000000000000000000000)
     marc_set('008/0-5', {{today}})
     marc_set('008/6', '|')
     marc_map('260c', pubyear)
