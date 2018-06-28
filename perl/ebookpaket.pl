@@ -84,6 +84,7 @@ unless ($fixfile){
     say 'Bitte ein Fixfile angeben oder leer lassen für Standardfixfile "ebook.fix".';
     chomp ($fixfile = <STDIN>);
     $fixfile = 'ebook.fix' unless $fixfile;
+    $logger->error('No fix file') unless -e $fixfile;
 }
 
 my $fixer = Catmandu::Fix->new(
