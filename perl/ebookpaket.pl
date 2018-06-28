@@ -44,7 +44,6 @@ if ($help){usage()};
 my $SEP = File::Spec->catfile("","");
 my $dir = File::Spec->rel2abs(dirname(__FILE__));
 my $datadir = $dir . $SEP . "data";
-# $dir =~ s:\\:/:g;
 
 if ($debug){
     Log::Any::Adapter->set('Log4perl');
