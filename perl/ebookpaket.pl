@@ -26,8 +26,11 @@ use File::Spec;
 use Log::Any::Adapter;
 use Log::Log4perl;
 use utf8;
-use open ':std', ':encoding(cp850)';
-
+if ($^O =~ m/MSWin32/){
+    binmode STDOUT,':encoding(cp850)';
+} else {
+    binmode STDOUT,':encoding(utf8)';
+}
 
 GetOptions(#'verbose|v'       => \my $verbose,
            'debug|d'         => \my $debug,
