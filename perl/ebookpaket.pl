@@ -23,6 +23,7 @@ use Getopt::Long;
 use Catmandu;
 use File::Basename;
 use File::Spec;
+use POSIX qw(strftime);
 use Log::Any::Adapter;
 use Log::Log4perl;
 use utf8;
@@ -84,14 +85,16 @@ unless ($fixfile){
     say 'Bitte ein Fixfile angeben oder leer lassen für Standardfixfile "ebook.fix".';
     chomp ($fixfile = <STDIN>);
     $fixfile = 'ebook.fix' unless $fixfile;
-
     die 'No fix file' unless -e $fixfile;
 }
+
+my $today = strftime "%y%m%d", localtime;
 
 my $fixer = Catmandu::Fix->new(
     variables => { ISO2MARC => "${datadir}${SEP}iso3166H2marc.csv",
                    MARC2ISO => "${datadir}${SEP}marc2iso3166H.csv",
                    sigel    => $sigel,
+                   today    => $today,
                  },
     fixes => [$fixfile],
 );
