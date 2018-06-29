@@ -23,11 +23,15 @@ use Getopt::Long;
 use Catmandu;
 use File::Basename;
 use File::Spec;
+use POSIX qw(strftime);
 use Log::Any::Adapter;
 use Log::Log4perl;
 use utf8;
-use open ':std', ':encoding(cp850)';
-
+if ($^O =~ m/MSWin32/){
+    binmode STDOUT,':encoding(cp850)';
+} else {
+    binmode STDOUT,':encoding(utf8)';
+}
 
 GetOptions(#'verbose|v'       => \my $verbose,
            'debug|d'         => \my $debug,
@@ -44,7 +48,7 @@ if ($help){usage()};
 my $SEP = File::Spec->catfile("","");
 my $dir = File::Spec->rel2abs(dirname(__FILE__));
 my $datadir = $dir . $SEP . "data";
-# $dir =~ s:\\:/:g;
+my $fixdir = $dir . $SEP . ".." . $SEP . "fixes";
 
 if ($debug){
     Log::Any::Adapter->set('Log4perl');
@@ -81,13 +85,17 @@ unless ($sigel){
 unless ($fixfile){
     say 'Bitte ein Fixfile angeben oder leer lassen für Standardfixfile "ebook.fix".';
     chomp ($fixfile = <STDIN>);
-    $fixfile = 'ebook.fix' unless $fixfile;
+    $fixfile = "${fixdir}${SEP}ebook.fix" unless $fixfile;
+    die 'No fix file' unless -e $fixfile;
 }
+
+my $today = strftime "%y%m%d", localtime;
 
 my $fixer = Catmandu::Fix->new(
     variables => { ISO2MARC => "${datadir}${SEP}iso3166H2marc.csv",
                    MARC2ISO => "${datadir}${SEP}marc2iso3166H.csv",
                    sigel    => $sigel,
+                   today    => $today,
                  },
     fixes => [$fixfile],
 );
