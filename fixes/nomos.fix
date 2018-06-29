@@ -1,6 +1,6 @@
 unless marc_match('912a', 'ZDB-18-NOL')
     marc_add('912', a, 'ZDB-18-NOL')
-    myrc_add('912', a, 'ZDB-18-NSW')
+    marc_add('912', a, 'ZDB-18-NSW')
 end
 
 if marc_match('950a', 'Paket Europapolitik')

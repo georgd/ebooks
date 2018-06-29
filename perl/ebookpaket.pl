@@ -33,12 +33,14 @@ if ($^O =~ m/MSWin32/){
     binmode STDOUT,':encoding(utf8)';
 }
 
+
 GetOptions(#'verbose|v'       => \my $verbose,
            'debug|d'         => \my $debug,
            'input|i=s'       => \my $input,
            'output|o=s'      => \my $output,
            'sigel|s=s'       => \my $sigel,
            'fixfile|fix|f=s' => \my $fixfile,
+           'filter|F'        => \my $isfilter,
            'help|hilfe|h|?'  => \my $help,
            ) or usage();
 
@@ -59,34 +61,47 @@ if ($debug){
     $logger->info("Starting main program");
 }
 
-# Test for input file
-unless ($input){
-    say 'Bitte Eingabedatei angeben:';
-    chomp ($input = <STDIN>);
-}
-while (!-e $input){
-    say 'Eingabedatei existiert nicht. Bitte neu angeben:';
-    chomp ($input = <STDIN>);
-}
+if (! $isfilter) {
+    # Test for input file
+    unless ($input){
+        say 'Bitte Eingabedatei angeben:';
+        chomp ($input = <STDIN>);
+    }
+    while (!-e $input){
+        say 'Eingabedatei existiert nicht. Bitte neu angeben:';
+        chomp ($input = <STDIN>);
+    }
 
-unless ($output){
-    say "Bitte Namen für Ausgabedatei angeben und mit <Enter> bestätigen.\n",
-        'Wenn die Auswahl leergelassen wird, heißt die Ausgabedatei "output.mrc".';
-    chomp ($output = <STDIN>);
-    $output = 'output.mrc' unless $output;
-}
+    unless ($output){
+        say "Bitte Namen für Ausgabedatei angeben und mit <Enter> bestätigen.\n",
+            'Wenn die Auswahl leergelassen wird, heißt die Ausgabedatei "output.mrc".';
+        chomp ($output = <STDIN>);
+        $output = 'output.mrc' unless $output;
+    }
 
-unless ($sigel){
-    say 'Bitte ein Paketsigel angeben oder leer lassen und mit <Enter> bestätigen.';
-    chomp ($sigel = <STDIN>);
-    $sigel = 'leer' unless $sigel;
-}
+    unless ($sigel){
+        say 'Bitte ein Paketsigel angeben oder leer lassen und mit <Enter> bestätigen.';
+        chomp ($sigel = <STDIN>);
+        $sigel = 'leer' unless $sigel;
+    }
 
-unless ($fixfile){
-    say 'Bitte ein Fixfile angeben oder leer lassen für Standardfixfile "ebook.fix".';
-    chomp ($fixfile = <STDIN>);
-    $fixfile = "${fixdir}${SEP}ebook.fix" unless $fixfile;
-    die 'No fix file' unless -e $fixfile;
+    unless ($fixfile){
+        say 'Bitte ein Fixfile angeben oder leer lassen für Standardfixfile "ebook.fix".';
+        chomp ($fixfile = <STDIN>);
+        $fixfile = "${fixdir}${SEP}ebook.fix" unless $fixfile;
+       die 'No fix file' unless -e $fixfile;
+    }
+} else {
+    unless($input && $output) {
+        print "Fehler: Eingabe- und/oder Ausgabedatei nicht angegeben!\n";
+        exit 1;
+    }
+    unless($sigel) {
+        $sigel = 'leer';
+    }
+    unless($fixfile) {
+        $fixfile = "${fixdir}${SEP}ebook.fix";
+    }
 }
 
 my $today = strftime "%y%m%d", localtime;
