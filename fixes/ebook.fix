@@ -232,7 +232,7 @@ if exists(sigel)
     if any_match(sigel, 'ZDB-18-')
         include ('../fixes/nomos.fix')
     end
-    unless marc_match('912a', $.sigel)
+    unless marc_match('912a', sigel)
         marc_add('912', a, $.sigel)
     end
 end
