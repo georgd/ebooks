@@ -36,6 +36,7 @@ if marc_match('008/6', 't')
 end
 
 marc_map('008/15-17', country)
+replace_all(country, '\|', ' ')
 if marc_match('008/35-37', '[a-z]{3}')
     marc_map('008/35-37', lang)
 end
@@ -185,6 +186,12 @@ marc_replace_all('264c', '(\d{4})\d+', '$1')
 # Spezialfall Campusverlag: Ort aus Verlagsnamen entfernen
 marc_replace_all('264b', 'Campus Frankfurt / New York', 'Campus')
 
+if marc_has('300[1]')
+    marc_cut('300[1]', 'tmp300')
+    set_field(tmp300.*.ind1, 0)
+    marc_paste(tmp300)
+end
+
 if marc_has('300')
     unless marc_match('300a', '[Oo]nline[-\s][Rr]es+ource')
         marc_replace_all('300a', '^(.+)$', '1 Online-Ressource $1')
@@ -192,12 +199,7 @@ if marc_has('300')
     if marc_match('300a', 'online resource')
         marc_replace_all('300a', 'online resource', 'Online-Ressource')
     end
-end
-
-if marc_has('300[1]')
-    marc_cut('300[1]', 'tmp300')
-    set_field(tmp300.*.ind1, 0)
-    marc_paste(tmp300)
+else marc_add('300', a, '1 Online-Ressource')
 end
 
 # RDA-Kategorien 336, 337, 338
@@ -208,6 +210,7 @@ end
 marc_add('336', b, 'txt')
 marc_add('337', b, 'c')
 marc_add('338', b, 'cr')
+
 
 if marc_has('347')
     marc_remove('347')
