@@ -33,14 +33,13 @@ if ($^O =~ m/MSWin32/){
     binmode STDOUT,':encoding(utf8)';
 }
 
-
 GetOptions(#'verbose|v'       => \my $verbose,
            'debug|d'         => \my $debug,
            'input|i=s'       => \my $input,
            'output|o=s'      => \my $output,
            'sigel|s=s'       => \my $sigel,
            'fixfile|fix|f=s' => \my $fixfile,
-           'filter|F'        => \my $isfilter,
+           'batch|b'         => \my $isfilter,
            'help|hilfe|h|?'  => \my $help,
            ) or usage();
 
