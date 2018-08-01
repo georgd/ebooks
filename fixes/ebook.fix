@@ -15,6 +15,11 @@ end
 marc_set('LDR/6', 'a')
 marc_set('LDR/17-23', '#c#4500')
 
+# default to UCS/Unicode if not set
+if marc_match('LDR/9', ' ')
+    marc_set('LDR/9', 'a')
+end
+
 unless marc_has('008')
     marc_add(008,_,0000000000000000000000000000000000000000)
     marc_set('008/0-5', {{today}})
