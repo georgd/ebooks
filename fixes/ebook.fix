@@ -12,6 +12,11 @@ if any_match('sigel', 'leer')
     remove_field('sigel')
 end
 
+# default to UCS/Unicode if LDR/9 is not set
+if marc_match('LDR/9', ' ')
+    marc_set('LDR/9', 'a')
+end
+
 marc_set('LDR/6', 'a')
 marc_set('LDR/17-23', '#c#4500')
 

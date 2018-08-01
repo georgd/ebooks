@@ -114,7 +114,7 @@ my $fixer = Catmandu::Fix->new(
     fixes => [$fixfile],
 );
 
-my $importer = Catmandu->importer('MARC', file => $input);
+my $importer = Catmandu->importer('MARC', type => 'RAW', file => $input);
 my $exporter = Catmandu->exporter('MARC', file => $output);
 my $fixed_importer = $fixer->fix($importer);
 
