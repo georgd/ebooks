@@ -33,6 +33,8 @@ if ($^O =~ m/MSWin32/){
     binmode STDOUT,':encoding(utf8)';
 }
 
+my $type = 'RAW';
+
 GetOptions(#'verbose|v'       => \my $verbose,
            'debug|d'         => \my $debug,
            'input|i=s'       => \my $input,
@@ -40,8 +42,11 @@ GetOptions(#'verbose|v'       => \my $verbose,
            'sigel|s=s'       => \my $sigel,
            'fixfile|fix|f=s' => \my $fixfile,
            'batch|b'         => \my $isfilter,
+           'type|t=s'        => $type,
            'help|hilfe|h|?'  => \my $help,
            ) or usage();
+
+$type = 'XML' if $type =~ m/xml/;
 
 if ($help){usage()};
 
@@ -114,7 +119,7 @@ my $fixer = Catmandu::Fix->new(
     fixes => [$fixfile],
 );
 
-my $importer = Catmandu->importer('MARC', file => $input);
+my $importer = Catmandu->importer('MARC', file => $input, type => $type);
 my $exporter = Catmandu->exporter('MARC', file => $output);
 my $fixed_importer = $fixer->fix($importer);
 
