@@ -63,12 +63,12 @@ if marc_match('0242', 'DOI')
     marc_set('0242', 'doi')
 end
 
-unless marc_match('024a', '10.\d{4,}\/.+')
+unless marc_match('024a', '10.\d{4,}/.+')
     do marc_each()
-        if marc_match('856u', '10.\d{4,}\/.+')
+        if marc_match('856u', '10.\d{4,}/.+$')
             marc_map('856u', doi)
-            replace_all(doi, '.*(10.\d{4,}\/.+)$', '$1')
-            marc_add('024[7]', a, $.doi, 2, 'doi')
+            replace_all(doi, '.*(10.\d{4,}/.+)$', '$1')
+            marc_add('024', ind1, '7', a, $.doi, 2, 'doi')
         end
     end
 end
