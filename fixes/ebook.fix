@@ -18,7 +18,7 @@ if marc_match('LDR/9', ' ')
 end
 
 marc_set('LDR/6', 'a')
-marc_set('LDR/9', 'a')
+#marc_set('LDR/9', 'a')
 marc_set('LDR/17-23', '#c#4500')
 
 unless marc_has('008')
