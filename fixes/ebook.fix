@@ -18,6 +18,7 @@ if marc_match('LDR/9', ' ')
 end
 
 marc_set('LDR/6', 'a')
+marc_set('LDR/9', 'a')
 marc_set('LDR/17-23', '#c#4500')
 
 unless marc_has('008')
@@ -40,8 +41,13 @@ if marc_match('008/6', 't')
     marc_set('008/6', '|')
 end
 
+if marc_match('912a', 'zdb-54-')
+    marc_set('008/15-17', 'gw ')
+end
+
 marc_map('008/15-17', country)
 replace_all(country, '\|', ' ')
+
 if marc_match('008/35-37', '[a-z]{3}')
     marc_map('008/35-37', lang)
 end
@@ -64,10 +70,10 @@ end
 
 unless marc_match('024a', '10.\d{4,}/.+')
     do marc_each()
-        if marc_match('856u', '10.\d{4,}/.+')
+        if marc_match('856u', '10.\d{4,}/.+$')
             marc_map('856u', doi)
             replace_all(doi, '.*(10.\d{4,}/.+)$', '$1')
-            marc_add('024[7]', a, $.doi, 2, 'doi')
+            marc_add('024', ind1, '7', a, $.doi, 2, 'doi')
         end
     end
 end
@@ -165,8 +171,11 @@ marc_cut(245, title)
 set_field(title.*.ind1, 0)
 remove_field(title.*.subfields.*.h)
 remove_field(title.*.subfields.*.y)
+if any_match(title.*.ind2, 0)
+    replace_all(title.*.subfields.*.a, '^(eines|einem|einen|einer|eine|der|die|das|des|dem|den|ein|the|an|a)\s', '<<$1>> ')
+end
 replace_all(title.*.subfields.*.a, '^(.+)\s[/:]$', '$1')
-replace_all(title.*.subfields.*.b, '^(.+)\s*[/:\.]4$', '$1')
+replace_all(title.*.subfields.*.b, '^(.+)\s*[/:\.]$', '$1')
 replace_all(title.*.subfields.*.c, '^(.+)\.$', '$1')
 replace_all(title.*.subfields.*.n, '^(.+)\s*[/,\.]$', '$1')
 replace_all(title.*.subfields.*.p, '^(.+)\s*[/,:\.]$', '$1')
@@ -184,6 +193,7 @@ end
 marc_replace_all('264a', '^(.+)\s:\s*$', '$1')
 marc_replace_all('264b', '^(.+),\s*$', '$1')
 marc_replace_all('264b', '^(.+)\s;\s*$', '$1')
+marc_replace_all('264c', '^(.+).\s*$', '$1')
 
 # Veröffentlichungsdatum auf Jahreszahl einschränken
 marc_replace_all('264c', '(\d{4})\d+', '$1')
@@ -204,6 +214,8 @@ if marc_has('300')
     if marc_match('300a', 'online resource')
         marc_replace_all('300a', 'online resource', 'Online-Ressource')
     end
+    marc_replace_all('300a', '(.+)\s*:\s*$', '$1')
+    marc_replace_all('300b', '(.+).\s*$', '$1')
 else marc_add('300', a, '1 Online-Ressource')
 end
 
@@ -228,6 +240,14 @@ if marc_match('003', 'Thieme')  # verallgemeinern?
     marc_paste(tmp490)
 end
 
+marc_replace_all('490a', '(.+)\s*;\s*$', '$1')
+
+marc_replace_all('500a', '(.+)\.$', '$1')
+marc_replace_all('520a', '(.+)\.$', '$1')
+marc_replace_all('650a', '(.+)\.$', '$1')
+marc_replace_all('650x', '(.+)\.$', '$1')
+marc_replace_all('776i', '(.+)\s*:\s*$', '$1')
+
 marc_remove('856[4,0]q')
 marc_set('856[4,0]3', 'Volltext')
 marc_replace_all('856u', '^\s+(\S+)\s+$', $1)
@@ -239,6 +259,8 @@ end
 if exists(sigel)
     if any_match(sigel, 'ZDB-18-')
         include ('../fixes/nomos.fix')
+    elsif marc_match('912a', 'ZDB-54-')
+        include ('../fixes/dunckerHumblodt.fix')
     else
         unless marc_match('912a', sigel)
             marc_add('912', a, $.sigel)

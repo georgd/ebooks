@@ -1,0 +1,17 @@
+unless marc_match('912a', 'ZDB-54-DHE')
+    marc_add('912', a, 'ZDB-54-DHE')
+end
+
+# Remove duplicate occurence of 912a ZDB-54-DHR
+# Todo: add a more sustainable fix for duplicate fields in the main program
+do marc_each()
+    if marc_match('912a', 'ZDB-54-DHR')
+        if any_match(tmpSigelzaehler)
+            marc_remove('912')
+        else
+            add_field(tmpSigelzaehler, 1)
+        end
+    end
+end
+
+remove_field(tmpSigelzaehler)
