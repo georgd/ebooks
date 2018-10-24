@@ -236,11 +236,22 @@ if marc_match('003', 'Thieme')  # verallgemeinern?
 end
 
 marc_replace_all('490a', '(.+)\s*;\s*$', '$1')
+if marc_has('490[1]')
+    marc_cut('490[1]', 'tmp490')
+    set_field(tmp490.*.ind1, 0)
+    marc_paste(tmp490)
+end
+ 
+marc_remove('830')
 
 marc_replace_all('500a', '(.+)\.$', '$1')
 marc_replace_all('520a', '(.+)\.$', '$1')
+marc_replace_all('610x', '(.+)\.$', '$1')
 marc_replace_all('650a', '(.+)\.$', '$1')
+marc_replace_all('650v', '(.+)\.$', '$1')
 marc_replace_all('650x', '(.+)\.$', '$1')
+marc_replace_all('650y', '(.+)\.$', '$1')
+marc_replace_all('650z', '(.+)\.$', '$1')
 marc_replace_all('776i', '(.+)\s*:\s*$', '$1')
 
 marc_remove('856[4,0]q')
