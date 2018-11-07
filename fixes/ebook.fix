@@ -257,6 +257,9 @@ marc_replace_all('776i', '(.+)\s*:\s*$', '$1')
 marc_remove('856[4,0]q')
 marc_set('856[4,0]3', 'Volltext')
 marc_replace_all('856u', '^\s+(\S+)\s+$', $1)
+if marc_match('856[4,0]u', 'https?://(dx\.)?doi\.org/10\.\d{4,}/.+')
+    marc_set('856[4,0]x', 'Resolving-System')
+end
 
 # E-Book-Sigel
 if marc_match('003', 'Vahlen')
