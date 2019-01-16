@@ -59,6 +59,13 @@ end
 
 marc_set('008/39', 'u')
 
+if marc_match('020a', '\d{13}')
+    if marc_match('020a', 'ebook')
+        marc_set('020c', 'ebook')
+    end
+    marc_replace_all('020a', '(\d{13}).*$', '$1')
+end
+
 if marc_match('0242', 'DOI')
     marc_set('0242', 'doi')
 end
