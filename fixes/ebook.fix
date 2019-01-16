@@ -204,6 +204,13 @@ marc_replace_all('264c', '(\d{4})\d+', '$1')
 # Spezialfall Campusverlag: Ort aus Verlagsnamen entfernen
 marc_replace_all('264b', 'Campus Frankfurt / New York', 'Campus')
 
+# Indikatorkorrektur
+if marc_has('264[0]')
+    marc_cut('264[0]', tmp264)
+    set_field(tmp264.*.ind1, '')
+    marc_paste(tmp264)
+end
+
 if marc_has('300[1]')
     marc_cut('300[1]', 'tmp300')
     set_field(tmp300.*.ind1, 0)
