@@ -47,14 +47,16 @@ if marc_match('008/35-37', '[a-z]{3}')
     marc_map('008/35-37', lang)
 end
 
+marc_set('008/18', '|')
+
 marc_set('008/23', 'o')
 
 unless marc_match('008/29', '1')
-    marc_set('008/29', '#')
+    marc_set('008/29', '|')
 end
 
 unless marc_match('008/30', '1')
-    marc_set('008/30', '#')
+    marc_set('008/30', '|')
 end
 
 marc_set('008/39', 'u')
