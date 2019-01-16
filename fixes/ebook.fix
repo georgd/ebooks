@@ -176,12 +176,13 @@ remove_field(title.*.subfields.*.y)
 if any_match(title.*.ind2, 0)
     replace_all(title.*.subfields.*.a, '^(eines|einem|einen|einer|eine|der|die|das|des|dem|den|ein|the|an|a)\s', '<<$1>> ')
 end
-replace_all(title.*.subfields.*.a, '^(.+)\s[/:]$', '$1')
-replace_all(title.*.subfields.*.b, '^(.+)\s*[/:\.]$', '$1')
+replace_all(title.*.subfields.*.a, '^(.+?)\s*[/:\.]$', '$1')
+replace_all(title.*.subfields.*.b, '^(.+?)\s*[/:\.]$', '$1')
 replace_all(title.*.subfields.*.c, '^(.+)\.$', '$1')
-replace_all(title.*.subfields.*.n, '^(.+)\s*[/,\.]$', '$1')
-replace_all(title.*.subfields.*.p, '^(.+)\s*[/,:\.]$', '$1')
+replace_all(title.*.subfields.*.n, '^(.+?)\s*[/,\.]$', '$1')
+replace_all(title.*.subfields.*.p, '^(.+?)\s*[/,:\.]$', '$1')
 marc_paste(title)
+marc_replace_all('250a', '^(.+?)\s*[\.;/:,]\s*$', '$1')
 
 if marc_has('260')
     marc_cut(260, publication)
@@ -216,10 +217,11 @@ if marc_has('300')
     if marc_match('300a', 'online resource')
         marc_replace_all('300a', 'online resource', 'Online-Ressource')
     end
-    marc_replace_all('300a', '(.+)\s*:\s*$', '$1')
-    marc_replace_all('300b', '(.+).\s*$', '$1')
+    marc_replace_all('300a', '(.+?)\s*:\s*$', '$1')
+    marc_replace_all('300b', '(.+)\.\s*$', '$1')
 else marc_add('300', a, '1 Online-Ressource')
 end
+marc_replace_all('300a', '^(.+)\.\s*$', '$1')
 
 # RDA-Kategorien 336, 337, 338
 if marc_has('33.')
