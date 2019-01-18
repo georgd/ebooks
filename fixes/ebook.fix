@@ -52,17 +52,26 @@ if marc_match('008/35-37', '[a-z]{3}')
     marc_map('008/35-37', lang)
 end
 
+marc_set('008/18', '|')
+
 marc_set('008/23', 'o')
 
 unless marc_match('008/29', '1')
-    marc_set('008/29', '#')
+    marc_set('008/29', '|')
 end
 
 unless marc_match('008/30', '1')
-    marc_set('008/30', '#')
+    marc_set('008/30', '|')
 end
 
 marc_set('008/39', 'u')
+
+if marc_match('020a', '\d{13}')
+    if marc_match('020a', 'ebook')
+        marc_set('020c', 'ebook')
+    end
+    marc_replace_all('020a', '(\d{13}).*$', '$1')
+end
 
 if marc_match('0242', 'DOI')
     marc_set('0242', 'doi')
@@ -174,12 +183,13 @@ remove_field(title.*.subfields.*.y)
 if any_match(title.*.ind2, 0)
     replace_all(title.*.subfields.*.a, '^(eines|einem|einen|einer|eine|der|die|das|des|dem|den|ein|the|an|a)\s', '<<$1>> ')
 end
-replace_all(title.*.subfields.*.a, '^(.+)\s[/:]$', '$1')
-replace_all(title.*.subfields.*.b, '^(.+)\s*[/:\.]$', '$1')
+replace_all(title.*.subfields.*.a, '^(.+?)\s*[/:\.]$', '$1')
+replace_all(title.*.subfields.*.b, '^(.+?)\s*[/:\.]$', '$1')
 replace_all(title.*.subfields.*.c, '^(.+)\.$', '$1')
-replace_all(title.*.subfields.*.n, '^(.+)\s*[/,\.]$', '$1')
-replace_all(title.*.subfields.*.p, '^(.+)\s*[/,:\.]$', '$1')
+replace_all(title.*.subfields.*.n, '^(.+?)\s*[/,\.]$', '$1')
+replace_all(title.*.subfields.*.p, '^(.+?)\s*[/,:\.]$', '$1')
 marc_paste(title)
+marc_replace_all('250a', '^(.+?)\s*[\.;/:,]\s*$', '$1')
 
 if marc_has('260')
     marc_cut(260, publication)
@@ -201,6 +211,13 @@ marc_replace_all('264c', '(\d{4})\d+', '$1')
 # Spezialfall Campusverlag: Ort aus Verlagsnamen entfernen
 marc_replace_all('264b', 'Campus Frankfurt / New York', 'Campus')
 
+# Indikatorkorrektur
+if marc_has('264[0]')
+    marc_cut('264[0]', tmp264)
+    set_field(tmp264.*.ind1, '')
+    marc_paste(tmp264)
+end
+
 if marc_has('300[1]')
     marc_cut('300[1]', 'tmp300')
     set_field(tmp300.*.ind1, 0)
@@ -214,10 +231,11 @@ if marc_has('300')
     if marc_match('300a', 'online resource')
         marc_replace_all('300a', 'online resource', 'Online-Ressource')
     end
-    marc_replace_all('300a', '(.+)\s*:\s*$', '$1')
-    marc_replace_all('300b', '(.+).\s*$', '$1')
+    marc_replace_all('300a', '(.+?)\s*:\s*$', '$1')
+    marc_replace_all('300b', '(.+)\.\s*$', '$1')
 else marc_add('300', a, '1 Online-Ressource')
 end
+marc_replace_all('300a', '^(.+)\.\s*$', '$1')
 
 # RDA-Kategorien 336, 337, 338
 if marc_has('33.')
@@ -241,16 +259,30 @@ if marc_match('003', 'Thieme')  # verallgemeinern?
 end
 
 marc_replace_all('490a', '(.+)\s*;\s*$', '$1')
+if marc_has('490[1]')
+    marc_cut('490[1]', 'tmp490')
+    set_field(tmp490.*.ind1, 0)
+    marc_paste(tmp490)
+end
+ 
+marc_remove('830')
 
 marc_replace_all('500a', '(.+)\.$', '$1')
 marc_replace_all('520a', '(.+)\.$', '$1')
+marc_replace_all('610x', '(.+)\.$', '$1')
 marc_replace_all('650a', '(.+)\.$', '$1')
+marc_replace_all('650v', '(.+)\.$', '$1')
 marc_replace_all('650x', '(.+)\.$', '$1')
+marc_replace_all('650y', '(.+)\.$', '$1')
+marc_replace_all('650z', '(.+)\.$', '$1')
 marc_replace_all('776i', '(.+)\s*:\s*$', '$1')
 
 marc_remove('856[4,0]q')
 marc_set('856[4,0]3', 'Volltext')
 marc_replace_all('856u', '^\s+(\S+)\s+$', $1)
+if marc_match('856[4,0]u', 'https?://(dx\.)?doi\.org/10\.\d{4,}/.+')
+    marc_set('856[4,0]x', 'Resolving-System')
+end
 
 # E-Book-Sigel
 if marc_match('003', 'Vahlen')
@@ -261,6 +293,12 @@ if exists(sigel)
         include ('../fixes/nomos.fix')
     elsif marc_match('912a', 'ZDB-54-')
         include ('../fixes/dunckerHumblodt.fix')
+    elsif any_match(sigel, 'ZDB-28-')
+        marc_map('001', tmp001)
+        add_field(tmpOUP, '(OUP)')
+        paste(tmp035, tmpOUP,tmp001, join_char:"")
+        marc_add('035', a, $.tmp035)
+        marc_add('912', a, $.sigel)
     else
         unless marc_match('912a', sigel)
             marc_add('912', a, $.sigel)

@@ -1,20 +1,27 @@
 aa |XA-AL
+abc|XD-CA
+aca|XE-AU
 ae |XC-DZ
 af |XB-AF
 ag |XD-AR
 ai |XB-AM
 aj |XB-AZ
+aku|XD-US
+alu|XD-US
 am |XD-AI
 an |XA-AD
 ao |XC-AO
 aq |XD-AG
+aru|XD-US
 as |XD-AS
 at |XE-AU
 au |XA-AT
 aw |XD-AW
 ay |XI-AQ
+azu|XD-US
 ba |XB-BH
 bb |XD-BB
+bcc|XD-CA
 bd |XC-BI
 be |XA-BE
 bf |XD-BS
@@ -34,6 +41,7 @@ bv |XK-BV
 bw |XA-BY
 bx |XB-BN
 ca |XD-AN
+cau|XD-US
 cb |XB-KH
 cc |XB-CN
 cd |XC-TD
@@ -46,14 +54,18 @@ cj |XD-KY
 ck |XD-CO
 cl |XD-CL
 cm |XC-CM
+cou|XD-US
 cq |XC-KM
 cr |XD-CR
 cs |XA-CSHH
+ctu|XD-US
 cu |XD-CU
 cv |XC-CV
 cw |XE-CK
 cx |XC-CF
 cy |XA-CY
+dcu|XD-US
+deu|XD-US
 dk |XA-DK
 dm |XC-BJ
 dq |XD-DM
@@ -62,6 +74,7 @@ ea |XC-ER
 ec |XD-EC
 eg |XC-GQ
 em |XB-TL
+enk|XA-GB
 er |XA-EE
 es |XD-SV
 et |XC-ET
@@ -70,11 +83,13 @@ fg |XD-GF
 fi |XA-FI
 fj |XE-FJ
 fk |XK-FK
+flu|XD-US
 fm |XE-FM
 fp |XE-PF
 fr |XA-FR
 fs |XL-TF
 ft |XC-DJ
+gau|XD-US
 gb |XE-KI
 gd |XD-GD
 gh |XC-GH
@@ -90,13 +105,18 @@ gu |XE-GU
 gv |XC-GN
 gw |XA-DE
 gy |XD-GY
+hiu|XD-US
 hm |XI-HM
 ho |XD-HN
 ht |XD-HT
 hu |XA-HU
+iau|XD-US
 ic |XA-IS
+idu|XD-US
 ie |XA-IE
 ii |XB-IN
+ilu|XD-US
+inu|XD-US
 io |XB-ID
 iq |XB-IQ
 ir |XB-IR
@@ -110,8 +130,11 @@ ke |XC-KE
 kg |XB-KG
 kn |XB-KP
 ko |XB-KR
+ksu|XD-US
 ku |XB-KW
+kyu|XD-US
 kz |XB-KZ
+lau|XD-US
 lb |XC-LR
 le |XB-LB
 lh |XA-LI
@@ -121,40 +144,69 @@ ls |XB-LA
 lu |XA-LU
 lv |XA-LV
 ly |XC-LY
+mau|XD-US
+mbc|XD-CA
 mc |XA-MC
+mdu|XD-US
+meu|XD-US
 mf |XC-MU
 mg |XC-MG
+miu|XD-US
 mj |XD-MS
 mk |XB-OM
 ml |XC-ML
 mm |XA-MT
+mnu|XD-US
 mo |XA-ME
+mou|XD-US
 mp |XB-MN
 mq |XD-MQ
 mr |XC-MA
+msu|XD-US
+mtu|XD-US
 mu |XC-MR
 mv |XA-MD
 mw |XC-MW
 mx |XD-MX
 my |XB-MY
 mz |XC-MZ
+nbu|XD-US
+ncu|XD-US
+ndu|XD-US
 ne |XA-NL
+nfc|XD-CA
 ng |XC-NE
+nhu|XD-US
+nik|XA-GB
+nju|XD-US
+nkc|XD-CA
 nl |XE-NC
+nmu|XD-US
 nn |XE-VU
 no |XA-NO
 np |XB-NP
 nq |XD-NI
 nr |XC-NG
+nsc|XD-CA
+ntc|XD-CA
 nu |XE-NR
+nuc|XD-CA
+nvu|XD-US
 nw |XE-MP
 nx |XE-NF
+nyu|XD-US
 nz |XE-NZ
+ohu|XD-US
+oku|XD-US
+onc|XD-CA
+oru|XD-US
 ot |XC-YT
+pau|XD-US
 pc |XM-PN
 pe |XD-PE
 pg |XC-GW
 ph |XB-PH
+pic|XD-CA
 pk |XB-PK
 pl |XA-PL
 pn |XD-PA
@@ -164,26 +216,33 @@ pr |XD-PR
 pw |XE-PW
 py |XD-PY
 qa |XB-QA
+qea|XE-AU
+quc|XD-CA
 rb |XA-RS
 re |XL-RE
 rh |XC-ZW
+riu|XD-US
 rm |XA-RO
 ru |XA-RU
 rw |XC-RW
 sa |XC-ZA
 sc |XD-BL
+scu|XD-US
+sdu|XD-US
 se |XC-SC
 sf |XC-ST
 sg |XC-SN
 si |XB-SG
 sl |XC-SL
 sm |XA-SM
+snc|XD-CA
 so |XC-SO
 sp |XA-ES
 sq |XC-SZ
 sr |XD-SR
 ss |XC-EH
 st |XD-MF
+stk|XA-GB
 su |XB-SA
 sw |XA-SE
 sx |XC-NA
@@ -196,40 +255,57 @@ th |XB-TH
 ti |XC-TN
 tk |XB-TM
 tl |XE-TK
+tma|XE-AU
+tnu|XD-US
 to |XE-TO
 tr |XD-TT
 ts |XB-AE
 tu |XB-TR
 tv |XE-TV
+txu|XD-US
 tz |XC-TZ
 ua |XC-EG
 ug |XC-UG
 uik|XA-GB
 un |XA-UA
 up |XM-UM
+utu|XD-US
 uv |XC-BF
 uy |XD-UY
 uz |XB-UZ
+vau|XD-US
 vb |XD-VG
 vc |XA-VA
 ve |XD-VE
 vi |XD-VI
 vm |XB-VN
+vra|XE-AU
+vtu|XD-US
+wau|XD-US
+wea|XE-AU
 wf |XE-WF
+wiu|XD-US
+wlk|XA-GB
 ws |XE-WS
+wvu|XD-US
+wyu|XD-US
 xa |XE-CX
 xb |XE-CC
 xc |XB-MV
 xd |XD-KN
 xe |XE-MH
+xga|XE-AU
 xh |XM-NU
 xj |XK-SH
 xk |XD-LC
 xl |XD-PM
 xm |XD-VC
 xn |XA-MK
+xna|XE-AU
 xo |XA-SK
+xoa|XE-AU
 xr |XA-CZ
+xra|XE-AU
 xs |XK-GS
 xv |XA-SI
 xxc|XD-CA
@@ -237,4 +313,6 @@ xxk|XA-GB
 xxr|XA-SUHH
 xxu|XD-US
 ye |XB-YE
+ykc|XD-CA
 za |XC-ZM
+
