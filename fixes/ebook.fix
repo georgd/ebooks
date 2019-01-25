@@ -18,7 +18,7 @@ marc_set('LDR/9', 'a')
 marc_set('LDR/17-23', '#c#4500')
 
 unless marc_has('008')
-    marc_add(008,_,'000000|uuuu####gw |####o#####||########u')
+    marc_add(008,_,'000000|uuuu||||gw |||||o|||||||| ||###|u')
     marc_set('008/0-5', {{today}})
     marc_map('260c', pubyear)
     marc_set('008/7-10', $.pubyear)
@@ -243,7 +243,6 @@ if exists('tmp_editor')
 elsif exists('tmp_c_editor')
     prepend('tmp_c_editor', 'hrsg. von ')
     copy_field('tmp_c_editor', 'tmp245c.$append', join: ' ; ')
-    
 end
 
 unless exists('tmp245c')
