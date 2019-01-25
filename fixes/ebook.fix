@@ -1,3 +1,4 @@
+
 ############################################################
 #                                                          #
 # ebook.fix - Fix-Datei für E-Bookpakete                   #
@@ -115,55 +116,108 @@ elsif is_string(country)
 #     marc_set('008/15-17', 'gw ')
 end
 
-# Beziehungskennzeichen in 100
-do marc_each()
-    if marc_has('100e')
-        if marc_match('100e', '[Ee]ditor|[Hh]rsg|[Hh]erausgeber')
-            marc_set('1004', 'edt')
-            marc_remove('100e')
-            marc_cut(100, tmp700)
-            set_field(tmp700.*.tag, 700)
-            marc_paste(tmp700)
-        elsif marc_match('100e', '[Cc]ontributor')
-            marc_set('1004', 'ctb')
-            marc_remove('100e')
-            marc_cut(100, tmp700)
-            set_field(tmp700.*.tag, 700)
-            marc_paste(tmp700)
-        elsif marc_match('100e', '[Aa]uth?or|[Vv]erfasser')
-            marc_set('1004', 'aut')
-            marc_remove('100e')
-        end
-    else
-        unless marc_has('1004')
-            marc_set('1004', 'aut')
-        end
-    end
-end
-
-# Beziehungskennzeichen in 700
-do marc_each()
-    if marc_has('700e')
-        if marc_match('700e', '[Aa]uthor|[Vv]erfasser')
-            marc_set('7004', 'aut')
-            marc_remove('700e')
-        elsif marc_match('700e', '[Ee]ditor|[Hh]rsg|[Hh]erausgeber')
-            marc_set('7004', 'edt')
-            marc_remove('700e')
-        elsif marc_match('700e', '[Cc]ontributor')
-            marc_set('7004', 'ctb')
-            marc_remove('700e')
-        end
-    else
-        unless marc_has('1004')
-            marc_set('1004', 'ctb')
-        end
-    end
-end
-
 # ISBD-Interpunktion in Personen entfernen
 marc_replace_all('100a', '^(.*)[.,]\s*$', '$1')
 marc_replace_all('700a', '^(.*)[.,]\s*$', '$1')
+
+# Fix 100 and 700
+do marc_each()
+    if marc_has('100')
+        if marc_has('100e')
+            if marc_match('100e', 'editor|hrsg|herausgeber')
+                marc_set('1004', 'edt')
+                marc_remove('100e')
+                marc_cut(100, tmp700)
+                set_field(tmp700.*.tag, 700)
+                marc_paste(tmp700)
+                copy_field('tmp700.*.subfields.*a', 'tmp_editor')
+                split_field('tmp_editor', ',\s+')
+                sort_field('tmp_editor', reverse:1)
+                join_field('tmp_editor', ' ')
+
+            elsif marc_match('100e', 'contributor')
+                marc_set('1004', 'ctb')
+                marc_remove('100e')
+                marc_cut(100, tmp700)
+                set_field(tmp700.*.tag, 700)
+                marc_paste(tmp700)
+                copy_field('tmp700.*.subfields.*a', 'tmp_contributor')
+                split_field('tmp_contributor', ',\s+')
+                sort_field('tmp_contributor', reverse:1)
+                join_field('tmp_contributor', ' ')
+
+            elsif marc_match('100e', 'auth?or|verfasser')
+                marc_set('1004', 'aut')
+                marc_remove('100e')
+                marc_map('100a', 'tmp_author')
+                split_field('tmp_author', ',\s+')
+                sort_field('tmp_author', reverse:1)
+                join_field('tmp_author', ' ')
+                copy_field('tmp_author', 'tmp245c.$append', join: " ; ")
+            end
+        else
+            unless marc_has('1004')
+                marc_set('1004', 'aut')
+            end
+            marc_map('100a', 'tmp_author')
+            split_field('tmp_author', ',\s+')
+            sort_field('tmp_author', reverse:1)
+            join_field('tmp_author', ' ')
+            copy_field('tmp_author', 'tmp245c.$append', join: " ; ")
+        end
+
+    elsif marc_has('700')
+        if marc_has('700e')
+            if marc_match('700e', 'auth?or|verfasser')
+                marc_set('7004', 'aut')
+                marc_remove('700e')
+                marc_map('100a', 'tmp_author')
+                split_field('tmp_author', ',\s+')
+                sort_field('tmp_author', reverse:1)
+                join_field('tmp_author', ' ')
+                copy_field('tmp_author', 'tmp245c.$append', join: " ; ")
+            elsif marc_match('700e', 'editor|hrsg|herausgeber')
+                marc_set('7004', 'edt')
+                marc_remove('700e')
+                unless exists('tmp_editor')
+                    marc_map('700a', 'tmp_editor')
+                end
+            elsif marc_match('700e', 'contributor')
+                marc_set('7004', 'ctb')
+                marc_remove('700e')
+                unless exists('tmp_contributor')
+                    marc_map('700a', 'tmp_contributor')
+                end
+            end
+        else
+            unless marc_has('7004')
+                marc_set('7004', 'ctb')
+                unless exists('tmp_contributor')
+                    marc_map('700a', 'tmp_contributor')
+                end
+            end
+        end
+    marc_cut(700, tmp700)
+    marc_paste(tmp700)
+    end
+end
+
+if exists('tmp_editor')
+    prepend('tmp_editor', 'hrsg. von ')
+    copy_field('tmp_editor', 'tmp245c.$append', join: ' ; ')
+end
+unless exists('tmp245c')
+    if exists('tmp_contributor')
+        append('tmp_contributor', ' (Mitarb.)')
+        copy_field('tmp_contributor', 'tmp245c.$append', join: ' ; ')
+    end
+end
+
+unless marc_has('245c')
+    if exists('tmp245c')
+        marc_set('245c', $.tmp245c)
+    end
+end
 
 # Title manipulation
 marc_cut(245, title)
