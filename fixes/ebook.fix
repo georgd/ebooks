@@ -152,7 +152,6 @@ do marc_each()
 
             elsif marc_match('100e', 'auth?or|verfasser')
                 marc_set('1004', 'aut')
-                marc_remove('100e')
                 marc_map('100a', 'tmp_author')
                 split_field('tmp_author', ',\s+')
                 sort_field('tmp_author', reverse:1)
@@ -169,6 +168,7 @@ do marc_each()
             join_field('tmp_author', ' ')
             copy_field('tmp_author', 'tmp245c.$append', join: ", ")
         end
+        marc_remove('100e')
 
     elsif marc_has('110')
         marc_map('110a', 'tmp245c.$append', join " , ")
@@ -177,7 +177,6 @@ do marc_each()
         if marc_has('700e')
             if marc_match('700e', 'auth?or|verfasser')
                 marc_set('7004', 'aut')
-                marc_remove('700e')
                 marc_map('700a', 'tmp_author')
                 split_field('tmp_author', ',\s+')
                 sort_field('tmp_author', reverse:1)
@@ -185,13 +184,11 @@ do marc_each()
                 copy_field('tmp_author', 'tmp245c.$append', join: ", ")
             elsif marc_match('700e', 'editor|hrsg|herausgeber')
                 marc_set('7004', 'edt')
-                marc_remove('700e')
                 unless exists('tmp_editor')
                     marc_map('700a', 'tmp_editor')
                 end
             elsif marc_match('700e', 'contributor')
                 marc_set('7004', 'ctb')
-                marc_remove('700e')
                 unless exists('tmp_contributor')
                     marc_map('700a', 'tmp_contributor')
                 end
@@ -204,23 +201,21 @@ do marc_each()
                 end
             end
         end
+        marc_remove('700e')
         marc_cut(700, tmp700)
         marc_paste(tmp700)
     elsif marc_has('710')
         if marc_has('710e')
             if marc_match('710e', 'auth?or|verfasser')
                 marc_set('7104', 'aut')
-                marc_remove('710e')
                 marc_map('710a', 'tmp245c.$append', join ", ")
             elsif marc_match('710e', 'editor|hrsg|herausgeber')
                 marc_set('7104', 'edt')
-                marc_remove('710e')
                 unless exists('tmp_editor')
                     marc_map('710a', 'tmp_c_editor')
                 end
             elsif marc_match('710e', 'contributor')
                 marc_set('7104', 'ctb')
-                marc_remove('710e')
                 unless exists('tmp_contributor')
                     marc_map('710a', 'tmp_c_contributor')
                 end
@@ -233,6 +228,7 @@ do marc_each()
                 end
             end
         end
+        marc_remove('710e')
         marc_cut('710', 'tmp710')
         marc_paste('tmp710')
     end
@@ -331,6 +327,9 @@ else marc_add('300', a, '1 Online-Ressource')
 end
 marc_replace_all('300a', '^(.+)\.\s*$', '$1')
 
+# experimental: presume a naked number in a parenthesis to be a page number
+marc_replace_all('300a', '(\([^)]+\d)\)$', '$1 Seiten)')
+
 # RDA-Kategorien 336, 337, 338
 if marc_has('33.')
     marc_remove('33.')
@@ -388,6 +387,8 @@ if exists(sigel)
         include ('../fixes/nomos.fix')
     elsif marc_match('912a', 'ZDB-54-') # Duncker Humblodt
         include ('../fixes/dunckerHumblodt.fix')
+    elsif any_match(sigel, 'ZDB-197')
+        include ('../fixes/mohrSiebeck.fix')
     elsif any_match(sigel, 'ZDB-28-') # Oxford Univ. Press
         marc_map('001', tmp001)
         add_field(tmpOUP, '(OUP)')
