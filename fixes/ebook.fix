@@ -72,6 +72,10 @@ if marc_match('020a', '\d{13}')
     marc_replace_all('020a', '(\d{13}).*$', '$1')
 end
 
+if marc_has('0209')
+	marc_remove('0209')
+end
+
 if marc_match('0242', 'DOI')
     marc_set('0242', 'doi')
 end
@@ -130,7 +134,7 @@ do marc_each()
                 marc_cut(100, tmp700)
                 set_field(tmp700.*.tag, 700)
                 marc_paste(tmp700)
-                copy_field('tmp700.*.subfields.*a', 'tmp_editor')
+                copy_field('tmp700.*.subfields.*.a', 'tmp_editor')
                 split_field('tmp_editor', ',\s+')
                 sort_field('tmp_editor', reverse:1)
                 join_field('tmp_editor', ' ')
@@ -141,7 +145,7 @@ do marc_each()
                 marc_cut(100, tmp700)
                 set_field(tmp700.*.tag, 700)
                 marc_paste(tmp700)
-                copy_field('tmp700.*.subfields.*a', 'tmp_contributor')
+                copy_field('tmp700.*.subfields.*.a', 'tmp_contributor')
                 split_field('tmp_contributor', ',\s+')
                 sort_field('tmp_contributor', reverse:1)
                 join_field('tmp_contributor', ' ')
@@ -367,6 +371,7 @@ marc_replace_all('650y', '(.+)\.$', '$1')
 marc_replace_all('650z', '(.+)\.$', '$1')
 marc_replace_all('776i', '(.+)\s*:\s*$', '$1')
 
+marc_remove('856[4,0]m')
 marc_remove('856[4,0]q')
 marc_set('856[4,0]3', 'Volltext')
 marc_replace_all('856u', '^\s+(\S+)\s+$', $1)
@@ -379,11 +384,11 @@ if marc_match('003', 'Vahlen')
     include ('../fixes/vahlen.fix')
 end
 if exists(sigel)
-    if any_match(sigel, 'ZDB-18-')
+    if any_match(sigel, 'ZDB-18-') # Nomos
         include ('../fixes/nomos.fix')
-    elsif marc_match('912a', 'ZDB-54-')
+    elsif marc_match('912a', 'ZDB-54-') # Duncker Humblodt
         include ('../fixes/dunckerHumblodt.fix')
-    elsif any_match(sigel, 'ZDB-28-')
+    elsif any_match(sigel, 'ZDB-28-') # Oxford Univ. Press
         marc_map('001', tmp001)
         add_field(tmpOUP, '(OUP)')
         paste(tmp035, tmpOUP,tmp001, join_char:"")
@@ -395,6 +400,18 @@ if exists(sigel)
         end
     end
 end
+
+# Special treatment for certain publishers
+if marc_match('912a', 'ZDB-73-') # Campus
+	if marc_match('775[0,8]a', 'erscheint auch')
+		marc_map('775[0,8]0', tmp776isbn)
+		replace_all(tmp776isbn, '\(DE-600\)(\d+)', '$1')
+		marc_remove('775[0,8]')
+		marc_add('776', ind1, '0', ind2, '8', i, 'Erscheint auch als', n, 'Druckausgabe')
+		marc_set('776[0,8]z', $.tmp776isbn)
+	end
+	marc_remove('935')
+end
+
 marc_remove('912b')
 marc_remove('003')
-
