@@ -1,0 +1,37 @@
+marc_add('912', a, 'ZDB-197-MSE')
+
+do marc_each()
+	if marc_has('020')
+		if exists(first020)
+			unless exists(second020)
+				marc_map('020a', second020)
+				marc_add('776', ind1, '0', ind2, '8', i, 'Erscheint auch als', n, 'Druckausgabe')
+				marc_set('776[0,8]z', $.second020)
+			end
+			marc_remove('020')
+		end
+		marc_set('020c', 'eBook')
+	end
+	if marc_has('240a')
+		marc_map('240a', tmp245a)
+		marc_set('245a', $.tmp245a)
+	end
+	if marc_match('912a', 'Rechtswissenschaft')
+		marc_set('912a', 'ZDB-197-MRW')
+	elsif marc_match('912a', 'Kulturwissenschaft')
+		marc_set('912a', 'ZDB-197-MSK')
+	elsif marc_match('912a', 'Wirtschaftswissenschaft')
+		marc_set('912a', 'ZDB-197-MWW')
+	elsif marc_match('912a', 'Theologie')
+		marc_set('912a', 'ZDB-197-MST')
+	elsif marc_match('912a', 'Philosophie')
+		marc_set('912a', 'ZDB-197-MPH')
+	elsif marc_match('912a', 'Judaistik')
+		marc_set('912a', 'ZDB-197-MJU')
+	elsif marc_match('912a', 'Altertumswissenschaft')
+		marc_set('912a', 'ZDB-197-MAW')
+	elsif marc_match('912a', 'Geschichtswissenschaft')
+		marc_set('912a', 'ZDB-197-MSG')
+	end
+end
+
