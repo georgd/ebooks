@@ -387,7 +387,7 @@ if exists(sigel)
         include ('../fixes/nomos.fix')
     elsif marc_match('912a', 'ZDB-54-') # Duncker Humblodt
         include ('../fixes/dunckerHumblodt.fix')
-    elsif any_match(sigel, 'ZDB-197')
+    elsif any_match(sigel, 'ZDB-197-')
         include ('../fixes/mohrSiebeck.fix')
     elsif any_match(sigel, 'ZDB-28-') # Oxford Univ. Press
         marc_map('001', tmp001)
