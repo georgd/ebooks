@@ -404,14 +404,14 @@ end
 
 # Special treatment for certain publishers
 if marc_match('912a', 'ZDB-73-') # Campus
-	if marc_match('775[0,8]a', 'erscheint auch')
-		marc_map('775[0,8]0', tmp776isbn)
-		replace_all(tmp776isbn, '\(DE-600\)(\d+)', '$1')
-		marc_remove('775[0,8]')
-		marc_add('776', ind1, '0', ind2, '8', i, 'Erscheint auch als', n, 'Druckausgabe')
-		marc_set('776[0,8]z', $.tmp776isbn)
-	end
-	marc_remove('935')
+    if marc_match('775[0,8]a', 'erscheint auch')
+        marc_map('775[0,8]0', tmp776isbn)
+        replace_all(tmp776isbn, '\(DE-600\)(\d+)', '$1')
+        marc_remove('775[0,8]')
+        marc_add('776', ind1, '0', ind2, '8', i, 'Erscheint auch als', n, 'Druckausgabe')
+        marc_set('776[0,8]z', $.tmp776isbn)
+    end
+    marc_remove('935')
 end
 
 marc_remove('912b')
