@@ -1,19 +1,7 @@
 marc_add('912', a, 'ZDB-197-MSE')
 
 do marc_each()
-    if marc_has('020')
-        if exists(first020)
-            unless exists(second020)
-                marc_map('020a', second020)
-                marc_add('776', ind1, '0', ind2, '8', i, 'Erscheint auch als', n, 'Druckausgabe')
-                marc_set('776[0,8]z', $.second020)
-            end
-            marc_remove('020')
-        else
-            marc_map('020a', first020)
-        end
-        marc_set('020c', 'eBook')
-    elsif marc_has('240a')
+    if marc_has('240a')
         marc_map('240a', tmp245a)
         marc_remove('240')
     elsif marc_match('912a', 'Rechtswissenschaft')
