@@ -116,6 +116,11 @@ marc_replace_all('700a', '^(.*)[.,]\s*$', '$1')
 # copy ISBN from 776 to temporary variable for comparison
 if marc_match('776[0,8]z', '\d{13}')
     marc_map('776[0,8]z', isbn776)
+    replace_all(isbn776, '(\d{13}).*$', '$1')
+    if marc_match('776[0,8]i', 'Print version')
+        marc_remove('776[0,8]')
+        marc_add('776', ind1, '0', ind2, '8', i, 'Erscheint auch als', n, 'Druckausgabe', z, $.isbn776)
+    end
 end
 
 # Loop over all MARC fields individually
@@ -123,11 +128,15 @@ do marc_each()
 # Fix multiple 020
     if marc_has('020')
         marc_replace_all('020a', '(\d{13}).*$', '$1')
+        marc_replace_all('020z', '(\d{13}).*$', '$1')
         if exists(first020)
-            unless marc_match('020a', $.isbn776)
+            if marc_has('020a')
                 marc_map('020a', tmpIsbn)
-                marc_add('776', ind1, '0', ind2, '8', i, 'Erscheint auch als', n, 'Druckausgabe')
-                marc_set('776[0,8]z', $.tmpIsbn)
+            elsif marc_has('020z')
+                marc_map('020z', tmpIsbn)
+            end
+            unless in(tmpIsbn, isbn776)
+                marc_add('776', ind1, '0', ind2, '8', i, 'Erscheint auch als', n, 'Druckausgabe', z, $.tmpIsbn)
             end
             marc_remove('020')
         else
@@ -325,7 +334,7 @@ if marc_has('300[1]')
 end
 
 if marc_has('300')
-    unless marc_match('300a', '[Oo]nline[-\s][Rr]es+ource')
+    unless marc_match('300a', 'online[-\s]res+ource')
         marc_replace_all('300a', '^(.+)$', '1 Online-Ressource $1')
     end
     if marc_match('300a', 'online resource')
@@ -333,6 +342,9 @@ if marc_has('300')
     end
     marc_replace_all('300a', '(.+?)\s*:\s*$', '$1')
     marc_replace_all('300b', '(.+)\.\s*$', '$1')
+    if marc_match('300b', 'digital, PDF file')
+        marc_remove('300b')
+    end
 else marc_add('300', a, '1 Online-Ressource')
 end
 marc_replace_all('300a', '^(.+)\.\s*$', '$1')
@@ -399,6 +411,9 @@ if exists(sigel)
         include ('../fixes/dunckerHumblodt.fix')
     elsif any_match(sigel, 'ZDB-197-') # Mohr Siebeck
         include ('../fixes/mohrSiebeck.fix')
+    elsif any_match(sigel, 'ZDB-20-') # Cambridge
+        marc_add('912', a, 'ZDB-20-CBO')
+        marc_add('912', a, $.sigel)
     elsif any_match(sigel, 'ZDB-28-') # Oxford Univ. Press
         marc_map('001', tmp001)
         add_field(tmpOUP, '(OUP)')
