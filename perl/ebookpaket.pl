@@ -42,6 +42,7 @@ GetOptions(#'verbose|v'       => \my $verbose,
            'sigel|s=s'       => \my $sigel,
            'fixfile|fix|f=s' => \my $fixfile,
            'batch|b'         => \my $isfilter,
+           'marc8|m'         => \my $marc8,
            'type|t=s'        => $type,
            'help|hilfe|h|?'  => \my $help,
            ) or usage();
@@ -108,6 +109,16 @@ if (! $isfilter) {
     }
 }
 
+if ($sigel =~ m/zdb-20-/i) {
+    $marc8 = 1;
+}
+
+if ($marc8) {
+    say 'Re-encode MARC-8 to UTF-8';
+    qx{yaz-marcdump -f MARC-8 -t UTF-8 -o marc -l 9=97 $input >tmp.mrc};
+    $input = 'tmp.mrc'
+}
+
 my $today = strftime "%y%m%d", localtime;
 
 my $fixer = Catmandu::Fix->new(
@@ -127,6 +138,10 @@ $exporter->add_many($fixed_importer->benchmark);
 $exporter->commit;
 
 undef($exporter);
+
+if (-e 'tmp.mrc') {
+    unlink 'tmp.mrc';
+}
 
 sub usage {
     print STDERR << "EOF";
