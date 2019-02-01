@@ -9,14 +9,14 @@ do marc_each()
                 marc_set('776[0,8]z', $.second020)
             end
             marc_remove('020')
+        else
+            marc_map('020a', first020)
         end
         marc_set('020c', 'eBook')
-    end
-    if marc_has('240a')
+    elsif marc_has('240a')
         marc_map('240a', tmp245a)
-        marc_set('245a', $.tmp245a)
-    end
-    if marc_match('912a', 'Rechtswissenschaft')
+        marc_remove('240')
+    elsif marc_match('912a', 'Rechtswissenschaft')
         marc_set('912a', 'ZDB-197-MRW')
     elsif marc_match('912a', 'Kulturwissenschaft')
         marc_set('912a', 'ZDB-197-MSK')
@@ -35,3 +35,6 @@ do marc_each()
     end
 end
 
+if exists(tmp245a)
+    marc_set('245a', $.tmp245a)
+end

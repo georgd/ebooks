@@ -65,17 +65,6 @@ end
 
 marc_set('008/39', 'u')
 
-if marc_match('020a', '\d{13}')
-    if marc_match('020a', 'ebook')
-        marc_set('020c', 'ebook')
-    end
-    marc_replace_all('020a', '(\d{13}).*$', '$1')
-end
-
-if marc_has('0209')
-	marc_remove('0209')
-end
-
 if marc_match('0242', 'DOI')
     marc_set('0242', 'doi')
 end
@@ -124,9 +113,30 @@ end
 marc_replace_all('100a', '^(.*)[.,]\s*$', '$1')
 marc_replace_all('700a', '^(.*)[.,]\s*$', '$1')
 
-# Fix 100 and 700
+# copy ISBN from 776 to temporary variable for comparison
+if marc_match('776[0,8]z', '\d{13}')
+    marc_map('776[0,8]z', isbn776)
+end
+
+# Loop over all MARC fields individually
 do marc_each()
-    if marc_has('100')
+# Fix multiple 020
+    if marc_has('020')
+        marc_replace_all('020a', '(\d{13}).*$', '$1')
+        if exists(first020)
+            unless marc_match('020a', $.isbn776)
+                marc_map('020a', tmpIsbn)
+                marc_add('776', ind1, '0', ind2, '8', i, 'Erscheint auch als', n, 'Druckausgabe')
+                marc_set('776[0,8]z', $.tmpIsbn)
+            end
+            marc_remove('020')
+        else
+            marc_map('020a', first020)
+            marc_set('020c', 'eBook')
+            marc_remove('0209')
+        end
+# Fix 1X0 and 7X0
+    elsif marc_has('100')
         if marc_has('100e')
             if marc_match('100e', 'editor|hrsg|herausgeber')
                 marc_set('1004', 'edt')
@@ -171,7 +181,7 @@ do marc_each()
         marc_remove('100e')
 
     elsif marc_has('110')
-        marc_map('110a', 'tmp245c.$append', join " , ")
+        marc_map('110a', 'tmp245c.$append', join: " , ")
 
     elsif marc_has('700')
         if marc_has('700e')
@@ -208,7 +218,7 @@ do marc_each()
         if marc_has('710e')
             if marc_match('710e', 'auth?or|verfasser')
                 marc_set('7104', 'aut')
-                marc_map('710a', 'tmp245c.$append', join ", ")
+                marc_map('710a', 'tmp245c.$append', join: ", ")
             elsif marc_match('710e', 'editor|hrsg|herausgeber')
                 marc_set('7104', 'edt')
                 unless exists('tmp_editor')
@@ -387,7 +397,7 @@ if exists(sigel)
         include ('../fixes/nomos.fix')
     elsif marc_match('912a', 'ZDB-54-') # Duncker Humblodt
         include ('../fixes/dunckerHumblodt.fix')
-    elsif any_match(sigel, 'ZDB-197-')
+    elsif any_match(sigel, 'ZDB-197-') # Mohr Siebeck
         include ('../fixes/mohrSiebeck.fix')
     elsif any_match(sigel, 'ZDB-28-') # Oxford Univ. Press
         marc_map('001', tmp001)
