@@ -1,3 +1,4 @@
+
 ############################################################
 #                                                          #
 # ebook.fix - Fix-Datei für E-Bookpakete                   #
@@ -22,12 +23,10 @@ marc_set('LDR/6', 'a')
 marc_set('LDR/17-23', '#c#4500')
 
 unless marc_has('008')
-    marc_add(008,_,0000000000000000000000000000000000000000)
+    marc_add(008,_,'000000|uuuu||||gw |||||o|||||||| ||###|u')
     marc_set('008/0-5', {{today}})
-    marc_set('008/6', '|')
     marc_map('260c', pubyear)
     marc_set('008/7-10', $.pubyear)
-    marc_set('008/11-39', '####gw######o###############u')
 end
 
 if marc_match('008/6', 'e')
@@ -41,7 +40,12 @@ if marc_match('008/6', 't')
     marc_set('008/6', '|')
 end
 
-if marc_match('912a', 'zdb-54-')
+# special treatment for some German publishers
+if exists(sigel)
+    if any_match(sigel, 'ZDB-54-|ZDB-73-|ZDB-197')
+        marc_set('008/15-17', 'gw ')
+    end
+elsif marc_match('912a', 'zdb-54-')
     marc_set('008/15-17', 'gw ')
 end
 
@@ -66,13 +70,6 @@ end
 
 marc_set('008/39', 'u')
 
-if marc_match('020a', '\d{13}')
-    if marc_match('020a', 'ebook')
-        marc_set('020c', 'ebook')
-    end
-    marc_replace_all('020a', '(\d{13}).*$', '$1')
-end
-
 if marc_match('0242', 'DOI')
     marc_set('0242', 'doi')
 end
@@ -85,14 +82,6 @@ unless marc_match('024a', '10.\d{4,}/.+')
             marc_add('024', ind1, '7', a, $.doi, 2, 'doi')
         end
     end
-end
-
-if marc_has('040')
-    unless marc_has('040e')
-        marc_set('040e', 'rda')
-    end
-else
-    marc_add('040', e, 'rda')
 end
 
 # Abgleich Sprache 008~041a
@@ -125,63 +114,188 @@ elsif is_string(country)
 #     marc_set('008/15-17', 'gw ')
 end
 
-# Beziehungskennzeichen in 100
-do marc_each()
-    if marc_has('100e')
-        if marc_match('100e', '[Ee]ditor')
-            marc_set('1004', 'edt')
-            marc_remove('100e')
-            marc_cut(100, tmp700)
-            set_field(tmp700.*.tag, 700)
-            marc_paste(tmp700)
-        elsif marc_match('100e', '[Cc]ontributor')
-            marc_set('1004', 'ctb')
-            marc_remove('100e')
-            marc_cut(100, tmp700)
-            set_field(tmp700.*.tag, 700)
-            marc_paste(tmp700)
-        elsif marc_match('100e', '[Aa]uthor')
-            marc_set('1004', 'aut')
-            marc_remove('100e')
-        end
-    else
-        unless marc_has('1004')
-            marc_set('1004', 'aut')
-        end
-    end
-end
-
-# Beziehungskennzeichen in 700
-do marc_each()
-    if marc_has('700e')
-        if marc_match('700e', '[Aa]uthor')
-            marc_set('7004', 'aut')
-            marc_remove('700e')
-        elsif marc_match('700e', '[Ee]ditor')
-            marc_set('7004', 'edt')
-            marc_remove('700e')
-        elsif marc_match('700e', '[Cc]ontributor')
-            marc_set('7004', 'ctb')
-            marc_remove('700e')
-        end
-    else
-        unless marc_has('1004')
-            marc_set('1004', 'ctb')
-        end
-    end
-end
-
 # ISBD-Interpunktion in Personen entfernen
 marc_replace_all('100a', '^(.*)[.,]\s*$', '$1')
 marc_replace_all('700a', '^(.*)[.,]\s*$', '$1')
+
+# copy ISBN from 776 to temporary variable for comparison
+if marc_match('776[0,8]z', '\d{13}')
+    marc_map('776[0,8]z', isbn776)
+    replace_all(isbn776, '(\d{13}).*$', '$1')
+    if marc_match('776[0,8]i', 'Print version')
+        marc_remove('776[0,8]')
+        marc_add('776', ind1, '0', ind2, '8', i, 'Erscheint auch als', n, 'Druckausgabe', z, $.isbn776)
+    end
+end
+
+# Loop over all MARC fields individually
+do marc_each()
+# Fix multiple 020
+    if marc_has('020')
+        marc_replace_all('020a', '(\d{13}).*$', '$1')
+        marc_replace_all('020z', '(\d{13}).*$', '$1')
+        if exists(first020)
+            if marc_has('020a')
+                marc_map('020a', tmpIsbn)
+            elsif marc_has('020z')
+                marc_map('020z', tmpIsbn)
+            end
+            unless in(tmpIsbn, isbn776)
+                marc_add('776', ind1, '0', ind2, '8', i, 'Erscheint auch als', n, 'Druckausgabe', z, $.tmpIsbn)
+            end
+            marc_remove('020')
+        else
+            marc_map('020a', first020)
+            marc_set('020c', 'eBook')
+            marc_remove('0209')
+        end
+# Fix 1X0 and 7X0
+    elsif marc_has('100')
+        if marc_has('100e')
+            if marc_match('100e', 'editor|hrsg|herausgeber')
+                marc_set('1004', 'edt')
+                marc_remove('100e')
+                marc_cut(100, tmp700)
+                set_field(tmp700.*.tag, 700)
+                marc_paste(tmp700)
+                copy_field('tmp700.*.subfields.*.a', 'tmp_editor')
+                split_field('tmp_editor', ',\s+')
+                sort_field('tmp_editor', reverse:1)
+                join_field('tmp_editor', ' ')
+
+            elsif marc_match('100e', 'contributor')
+                marc_set('1004', 'ctb')
+                marc_remove('100e')
+                marc_cut(100, tmp700)
+                set_field(tmp700.*.tag, 700)
+                marc_paste(tmp700)
+                copy_field('tmp700.*.subfields.*.a', 'tmp_contributor')
+                split_field('tmp_contributor', ',\s+')
+                sort_field('tmp_contributor', reverse:1)
+                join_field('tmp_contributor', ' ')
+
+            elsif marc_match('100e', 'auth?or|verfasser')
+                marc_set('1004', 'aut')
+                marc_map('100a', 'tmp_author')
+                split_field('tmp_author', ',\s+')
+                sort_field('tmp_author', reverse:1)
+                join_field('tmp_author', ' ')
+                copy_field('tmp_author', 'tmp245c.$append', join: ", ")
+            end
+        else
+            unless marc_has('1004')
+                marc_set('1004', 'aut')
+            end
+            marc_map('100a', 'tmp_author')
+            split_field('tmp_author', ',\s+')
+            sort_field('tmp_author', reverse:1)
+            join_field('tmp_author', ' ')
+            copy_field('tmp_author', 'tmp245c.$append', join: ", ")
+        end
+        marc_remove('100e')
+
+    elsif marc_has('110')
+        marc_map('110a', 'tmp245c.$append', join: " , ")
+
+    elsif marc_has('700')
+        if marc_has('700e')
+            if marc_match('700e', 'auth?or|verfasser')
+                marc_set('7004', 'aut')
+                marc_map('700a', 'tmp_author')
+                split_field('tmp_author', ',\s+')
+                sort_field('tmp_author', reverse:1)
+                join_field('tmp_author', ' ')
+                copy_field('tmp_author', 'tmp245c.$append', join: ", ")
+            elsif marc_match('700e', 'editor|hrsg|herausgeber')
+                marc_set('7004', 'edt')
+                unless exists('tmp_editor')
+                    marc_map('700a', 'tmp_editor')
+                end
+            elsif marc_match('700e', 'contributor')
+                marc_set('7004', 'ctb')
+                unless exists('tmp_contributor')
+                    marc_map('700a', 'tmp_contributor')
+                end
+            end
+        else
+            unless marc_has('7004')
+                marc_set('7004', 'ctb')
+                unless exists('tmp_contributor')
+                    marc_map('700a', 'tmp_contributor')
+                end
+            end
+        end
+        marc_remove('700e')
+        marc_cut(700, tmp700)
+        marc_paste(tmp700)
+    elsif marc_has('710')
+        if marc_has('710e')
+            if marc_match('710e', 'auth?or|verfasser')
+                marc_set('7104', 'aut')
+                marc_map('710a', 'tmp245c.$append', join: ", ")
+            elsif marc_match('710e', 'editor|hrsg|herausgeber')
+                marc_set('7104', 'edt')
+                unless exists('tmp_editor')
+                    marc_map('710a', 'tmp_c_editor')
+                end
+            elsif marc_match('710e', 'contributor')
+                marc_set('7104', 'ctb')
+                unless exists('tmp_contributor')
+                    marc_map('710a', 'tmp_c_contributor')
+                end
+            end
+        else
+            unless marc_has('7104')
+                marc_set('7104', 'ctb')
+                unless exists('tmp_c_contributor')
+                    marc_map('710a', 'tmp_c_contributor')
+                end
+            end
+        end
+        marc_remove('710e')
+        marc_cut('710', 'tmp710')
+        marc_paste('tmp710')
+    end
+end
+
+if exists('tmp_editor')
+    split_field('tmp_editor', ',\s+')
+    sort_field('tmp_editor', reverse:1)
+    join_field('tmp_editor', ' ')
+    prepend('tmp_editor', 'hrsg. von ')
+    copy_field('tmp_editor', 'tmp245c.$append', join: ' ; ')
+elsif exists('tmp_c_editor')
+    prepend('tmp_c_editor', 'hrsg. von ')
+    copy_field('tmp_c_editor', 'tmp245c.$append', join: ' ; ')
+end
+
+unless exists('tmp245c')
+    if exists('tmp_contributor')
+        split_field('tmp_contributor', ',\s+')
+        sort_field('tmp_contributor', reverse:1)
+        join_field('tmp_contributor', ' ')
+        append('tmp_contributor', ' (Mitarb.)')
+        copy_field('tmp_contributor', 'tmp245c.$append', join: ' ; ')
+    elsif exists('tmp_c_contributor')
+        append('tmp_c_contributor', ' (Mitarb.)')
+        copy_field('tmp_c_contributor', 'tmp245c.$append', join: ' ; ')
+    end
+end
+
+unless marc_has('245c')
+    if exists('tmp245c')
+        marc_set('245c', $.tmp245c)
+    end
+end
 
 # Title manipulation
 marc_cut(245, title)
 set_field(title.*.ind1, 0)
 remove_field(title.*.subfields.*.h)
 remove_field(title.*.subfields.*.y)
-if any_match(title.*.ind2, 0)
+if any_match(title.*.subfields.*.a,  '^(eines|einem|einen|einer|eine|der|die|das|des|dem|den|ein|the|an|a)\s')
     replace_all(title.*.subfields.*.a, '^(eines|einem|einen|einer|eine|der|die|das|des|dem|den|ein|the|an|a)\s', '<<$1>> ')
+    set_field(title.*.ind2, 0)
 end
 replace_all(title.*.subfields.*.a, '^(.+?)\s*[/:\.]$', '$1')
 replace_all(title.*.subfields.*.b, '^(.+?)\s*[/:\.]$', '$1')
@@ -203,7 +317,7 @@ end
 marc_replace_all('264a', '^(.+)\s:\s*$', '$1')
 marc_replace_all('264b', '^(.+),\s*$', '$1')
 marc_replace_all('264b', '^(.+)\s;\s*$', '$1')
-marc_replace_all('264c', '^(.+).\s*$', '$1')
+marc_replace_all('264c', '^(.+)\.\s*$', '$1')
 
 # Veröffentlichungsdatum auf Jahreszahl einschränken
 marc_replace_all('264c', '(\d{4})\d+', '$1')
@@ -225,7 +339,7 @@ if marc_has('300[1]')
 end
 
 if marc_has('300')
-    unless marc_match('300a', '[Oo]nline[-\s][Rr]es+ource')
+    unless marc_match('300a', 'online[-\s]res+ource')
         marc_replace_all('300a', '^(.+)$', '1 Online-Ressource $1')
     end
     if marc_match('300a', 'online resource')
@@ -233,9 +347,15 @@ if marc_has('300')
     end
     marc_replace_all('300a', '(.+?)\s*:\s*$', '$1')
     marc_replace_all('300b', '(.+)\.\s*$', '$1')
+    if marc_match('300b', 'digital, PDF file')
+        marc_remove('300b')
+    end
 else marc_add('300', a, '1 Online-Ressource')
 end
 marc_replace_all('300a', '^(.+)\.\s*$', '$1')
+
+# experimental: presume a naked number in a parenthesis to be a page number
+marc_replace_all('300a', '(\([^)]+\d)\)$', '$1 Seiten)')
 
 # RDA-Kategorien 336, 337, 338
 if marc_has('33.')
@@ -277,6 +397,7 @@ marc_replace_all('650y', '(.+)\.$', '$1')
 marc_replace_all('650z', '(.+)\.$', '$1')
 marc_replace_all('776i', '(.+)\s*:\s*$', '$1')
 
+marc_remove('856[4,0]m')
 marc_remove('856[4,0]q')
 marc_set('856[4,0]3', 'Volltext')
 marc_replace_all('856u', '^\s+(\S+)\s+$', $1)
@@ -289,11 +410,16 @@ if marc_match('003', 'Vahlen')
     include ('../fixes/vahlen.fix')
 end
 if exists(sigel)
-    if any_match(sigel, 'ZDB-18-')
+    if any_match(sigel, 'ZDB-18-') # Nomos
         include ('../fixes/nomos.fix')
-    elsif marc_match('912a', 'ZDB-54-')
+    elsif marc_match('912a', 'ZDB-54-') # Duncker Humblodt
         include ('../fixes/dunckerHumblodt.fix')
-    elsif any_match(sigel, 'ZDB-28-')
+    elsif any_match(sigel, 'ZDB-197-') # Mohr Siebeck
+        include ('../fixes/mohrSiebeck.fix')
+    elsif any_match(sigel, 'ZDB-20-') # Cambridge
+        marc_add('912', a, 'ZDB-20-CBO')
+        marc_add('912', a, $.sigel)
+    elsif any_match(sigel, 'ZDB-28-') # Oxford Univ. Press
         marc_map('001', tmp001)
         add_field(tmpOUP, '(OUP)')
         paste(tmp035, tmpOUP,tmp001, join_char:"")
@@ -305,6 +431,18 @@ if exists(sigel)
         end
     end
 end
+
+# Special treatment for certain publishers
+if marc_match('912a', 'ZDB-73-') # Campus
+    if marc_match('775[0,8]a', 'erscheint auch')
+        marc_map('775[0,8]0', tmp776isbn)
+        replace_all(tmp776isbn, '\(DE-600\)(\d+)', '$1')
+        marc_remove('775[0,8]')
+        marc_add('776', ind1, '0', ind2, '8', i, 'Erscheint auch als', n, 'Druckausgabe')
+        marc_set('776[0,8]z', $.tmp776isbn)
+    end
+    marc_remove('935')
+end
+
 marc_remove('912b')
 marc_remove('003')
-

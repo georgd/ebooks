@@ -1,0 +1,28 @@
+marc_add('912', a, 'ZDB-197-MSE')
+
+do marc_each()
+    if marc_has('240a')
+        marc_map('240a', tmp245a)
+        marc_remove('240')
+    elsif marc_match('912a', 'Rechtswissenschaft')
+        marc_set('912a', 'ZDB-197-MRW')
+    elsif marc_match('912a', 'Kulturwissenschaft')
+        marc_set('912a', 'ZDB-197-MSK')
+    elsif marc_match('912a', 'Wirtschaftswissenschaft')
+        marc_set('912a', 'ZDB-197-MWW')
+    elsif marc_match('912a', 'Theologie')
+        marc_set('912a', 'ZDB-197-MST')
+    elsif marc_match('912a', 'Philosophie')
+        marc_set('912a', 'ZDB-197-MPH')
+    elsif marc_match('912a', 'Judaistik')
+        marc_set('912a', 'ZDB-197-MJU')
+    elsif marc_match('912a', 'Altertumswissenschaft')
+        marc_set('912a', 'ZDB-197-MAW')
+    elsif marc_match('912a', 'Geschichtswissenschaft')
+        marc_set('912a', 'ZDB-197-MSG')
+    end
+end
+
+if exists(tmp245a)
+    marc_set('245a', $.tmp245a)
+end
