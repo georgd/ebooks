@@ -23,6 +23,7 @@ use Getopt::Long;
 use Catmandu;
 use File::Basename;
 use File::Spec;
+use File::Temp;
 use POSIX qw(strftime);
 use Log::Any::Adapter;
 use Log::Log4perl;
@@ -56,6 +57,8 @@ my $SEP = File::Spec->catfile("","");
 my $dir = File::Spec->rel2abs(dirname(__FILE__));
 my $datadir = $dir . $SEP . "data";
 my $fixdir = $dir . $SEP . ".." . $SEP . "fixes";
+
+my $convfile = undef;
 
 if ($debug){
     Log::Any::Adapter->set('Log4perl');
@@ -114,9 +117,10 @@ if ($sigel =~ m/zdb-20-/i) {
 }
 
 if ($marc8) {
+    $convfile = tmpnam();
     say 'Re-encode MARC-8 to UTF-8';
-    qx{yaz-marcdump -f MARC-8 -t UTF-8 -o marc -l 9=97 $input >tmp.mrc};
-    $input = 'tmp.mrc'
+    qx{yaz-marcdump -f MARC-8 -t UTF-8 -o marc -l 9=97 $input > $convfile};
+    $input = $convfile;
 }
 
 my $today = strftime "%y%m%d", localtime;
@@ -139,8 +143,8 @@ $exporter->commit;
 
 undef($exporter);
 
-if (-e 'tmp.mrc') {
-    unlink 'tmp.mrc';
+if ($convfile && -e "$convfile") {
+    unlink "$convfile";
 }
 
 sub usage {
