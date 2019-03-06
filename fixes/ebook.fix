@@ -9,7 +9,7 @@
 ############################################################
 
 add_field(sigel, {{sigel}})
-if any_match('sigel', 'leer')
+if any_match('sigel', '___')
     remove_field('sigel')
 end
 

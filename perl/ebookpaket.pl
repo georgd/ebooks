@@ -90,7 +90,7 @@ if (! $isfilter) {
     unless ($sigel){
         say 'Bitte ein Paketsigel angeben oder leer lassen und mit <Enter> bestätigen.';
         chomp ($sigel = <STDIN>);
-        $sigel = 'leer' unless $sigel;
+        $sigel = '___' unless $sigel;
     }
 
     unless ($fixfile){
@@ -105,7 +105,7 @@ if (! $isfilter) {
         exit 1;
     }
     unless($sigel) {
-        $sigel = 'leer';
+        $sigel = '___';
     }
     unless($fixfile) {
         $fixfile = "${fixdir}${SEP}ebook.fix";
@@ -128,7 +128,7 @@ my $today = strftime "%y%m%d", localtime;
 my $fixer = Catmandu::Fix->new(
     variables => { ISO2MARC => "${datadir}${SEP}iso3166H2marc.csv",
                    MARC2ISO => "${datadir}${SEP}marc2iso3166H.csv",
-                   sigel    => $sigel,
+                   sigel    => uc($sigel),
                    today    => $today,
                  },
     fixes => [$fixfile],
