@@ -29,6 +29,10 @@ unless marc_has('008')
     marc_set('008/7-10', $.pubyear)
 end
 
+unless marc_match('008/0-5', '\d{6}')
+    marc_set('008/0-5', {{today}})
+end
+
 if marc_match('008/6', 'e')
     marc_set('008/6', '|')
     marc_set('008/11-14', '||||') 
