@@ -11,7 +11,7 @@ unless marc_match('912a', 'ZDB-128-VEL')
     marc_add('912', a, 'ZDB-128-VEL')
 end
 
-if marc_match('950a', 'Allgemeine Betriebswirtschaftslehre')
+if marc_match('950a', 'Allgem(\.|eine) Betriebswirtschaftslehre')
     marc_add('912', a, 'ZDB-128-VAB')
 end
 if marc_match('950a', 'Buchführung, Bilanz, Steuern')
