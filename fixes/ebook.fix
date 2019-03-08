@@ -118,8 +118,8 @@ elsif is_string(country)
 end
 
 # ISBD-Interpunktion in Personen entfernen
-marc_replace_all('100a', '^(.*)[.,]\s*$', '$1')
-marc_replace_all('700a', '^(.*)[.,]\s*$', '$1')
+marc_replace_all('100a', '^(.+[\s.-]\w\.|.*\w{2,}|.+\w{2,}\.)[,.],?$', '$1')
+marc_replace_all('700a', '^(.+[\s.-]\w\.|.*\w{2,}|.+\w{2,}\.)[,.],?$', '$1')
 
 # copy ISBN from 776 to temporary variable for comparison
 if marc_match('776[0,8]z', '\d{13}')
