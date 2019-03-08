@@ -117,10 +117,6 @@ elsif is_string(country)
 #     marc_set('008/15-17', 'gw ')
 end
 
-# ISBD-Interpunktion in Personen entfernen
-marc_replace_all('100a', '^(.+[\s.-]\w\.|.*\w{2,}|.+\w{2,}\.)[,.],?$', '$1')
-marc_replace_all('700a', '^(.+[\s.-]\w\.|.*\w{2,}|.+\w{2,}\.)[,.],?$', '$1')
-
 # copy ISBN from 776 to temporary variable for comparison
 if marc_match('776[0,8]z', '\d{13}')
     marc_map('776[0,8]z', isbn776)
@@ -311,7 +307,6 @@ replace_all(title.*.subfields.*.c, '^(.+)\.$', '$1')
 replace_all(title.*.subfields.*.n, '^(.+?)\s*[/,\.]$', '$1')
 replace_all(title.*.subfields.*.p, '^(.+?)\s*[/,:\.]$', '$1')
 marc_paste(title)
-marc_replace_all('250a', '^(.+?)\s*[\.;/:,]\s*$', '$1')
 
 if marc_has('260')
     marc_cut(260, publication)
@@ -320,11 +315,6 @@ if marc_has('260')
     set_field(publication.*.ind2, 1)
     marc_paste(publication)
 end
-
-# ISBD-Interpunktion in Veröffentlichungsangaben entfernen
-marc_replace_all('264a', '^(.+)\s[;:]\s*$', '$1')
-marc_replace_all('264b', '^(.+)\s?[;,]\s*$', '$1')
-marc_replace_all('264c', '^(.+)\.\s*$', '$1')
 
 # Veröffentlichungsdatum auf Jahreszahl einschränken
 marc_replace_all('264c', '(\d{4})\d+', '$1')
@@ -352,14 +342,11 @@ if marc_has('300')
     if marc_match('300a', 'online resource')
         marc_replace_all('300a', 'online resource', 'Online-Ressource')
     end
-    marc_replace_all('300a', '(.+?)\s*:\s*$', '$1')
-    marc_replace_all('300b', '(.+)\.\s*$', '$1')
     if marc_match('300b', 'digital, PDF file')
         marc_remove('300b')
     end
 else marc_add('300', a, '1 Online-Ressource')
 end
-marc_replace_all('300a', '^(.+)\.\s*$', '$1')
 
 # experimental: presume a naked number in a parenthesis to be a page number
 marc_replace_all('300a', '(\([^)]+\d)\)$', '$1 Seiten)')
@@ -385,7 +372,6 @@ if marc_match('003', 'Thieme')  # verallgemeinern?
     marc_paste(tmp490)
 end
 
-marc_replace_all('490a', '(.+)\s*;\s*$', '$1')
 if marc_has('490[1]')
     marc_cut('490[1]', 'tmp490')
     set_field(tmp490.*.ind1, 0)
@@ -394,8 +380,35 @@ end
  
 marc_remove('830')
 
+# ISBD-Interpunktion aus diversen Kategorien entfernen
+# ISBD-Interpunktion in Personen entfernen
+marc_replace_all('100a', '^(.+[\s.-]\w\.|.*\w{2,}|.+\w{2,}\.)[,.],?$', '$1')
+marc_replace_all('700a', '^(.+[\s.-]\w\.|.*\w{2,}|.+\w{2,}\.)[,.],?$', '$1')
+
+marc_replace_all('250a', '^(.+?)\s*[\.;/:,]\s*$', '$1')
+
+# ISBD-Interpunktion in Veröffentlichungsangaben entfernen
+marc_replace_all('264a', '^(.+)\s[;:]\s*$', '$1')
+marc_replace_all('264b', '^(.+)\s?[;,]\s*$', '$1')
+marc_replace_all('264c', '^(.+)\.\s*$', '$1')
+
+marc_replace_all('300a', '^(.+?)\s*[.:]\s*$', '$1')
+marc_replace_all('300b', '(.+)\.\s*$', '$1')
+marc_replace_all('490a', '(.+)\s*[;.]\s*$', '$1')
 marc_replace_all('500a', '(.+)\.$', '$1')
 marc_replace_all('520a', '(.+)\.$', '$1')
+marc_replace_all('530a', '(.+)\.$', '$1')
+
+# ISBD-Interpunktion aus Reproduktionsangaben entfernen
+marc_replace_all('533a', '^(.+)\.\s*$', '$1')
+marc_replace_all('533b', '^(.+)\s*:\s*$', '$1')
+marc_replace_all('533c', '^(.+),\s*$', '$1')
+marc_replace_all('533d', '^(.+)\.\s*$', '$1')
+marc_replace_all('533n', '^(.+)\.\s*$', '$1')
+
+marc_replace_all('600a', '^(.*)[.,]\s*$', '$1')
+marc_replace_all('600d', '(.+)\.$', '$1')
+marc_replace_all('600t', '(.+)\.$', '$1')
 marc_replace_all('610x', '(.+)\.$', '$1')
 marc_replace_all('650a', '(.+)\.$', '$1')
 marc_replace_all('650v', '(.+)\.$', '$1')
