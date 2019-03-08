@@ -322,9 +322,8 @@ if marc_has('260')
 end
 
 # ISBD-Interpunktion in Veröffentlichungsangaben entfernen
-marc_replace_all('264a', '^(.+)\s:\s*$', '$1')
-marc_replace_all('264b', '^(.+),\s*$', '$1')
-marc_replace_all('264b', '^(.+)\s;\s*$', '$1')
+marc_replace_all('264a', '^(.+)\s[;:]\s*$', '$1')
+marc_replace_all('264b', '^(.+)\s?[;,]\s*$', '$1')
 marc_replace_all('264c', '^(.+)\.\s*$', '$1')
 
 # Veröffentlichungsdatum auf Jahreszahl einschränken
