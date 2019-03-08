@@ -412,8 +412,7 @@ end
 # E-Book-Sigel
 if marc_match('003', 'Vahlen')
     include ('../fixes/vahlen.fix')
-end
-if exists(sigel)
+elsif exists(sigel)
     if any_match(sigel, 'ZDB-18-') # Nomos
         include ('../fixes/nomos.fix')
     elsif marc_match('912a', 'ZDB-54-') # Duncker Humblodt
