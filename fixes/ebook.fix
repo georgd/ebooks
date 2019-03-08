@@ -470,3 +470,5 @@ end
 
 marc_remove('912b')
 marc_remove('003')
+marc_remove('006')
+
