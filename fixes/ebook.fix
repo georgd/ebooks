@@ -81,7 +81,7 @@ unless marc_match('024a', '10.\d{4,}(\.\d+)*/.+')
     do marc_each()
         if marc_match('856u', '10.\d{4,}(\.\d+)*/.+$')
             marc_map('856u', doi)
-            replace_all(doi, '.*?(10.\d{4,}(\.\d+)*/.+)$', '$1')
+            replace_all(doi, '.*?(10.\d{4,}(\.\d+)*/.+?)\s*$', '$1')
             marc_add('024', ind1, '7', a, $.doi, 2, 'doi')
         end
     end
