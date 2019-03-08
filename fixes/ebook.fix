@@ -401,6 +401,11 @@ marc_replace_all('650y', '(.+)\.$', '$1')
 marc_replace_all('650z', '(.+)\.$', '$1')
 marc_replace_all('776i', '(.+)\s*:\s*$', '$1')
 
+if any_match(sigel, 'ZDB-197')
+    marc_cut('856[4]', tmp856)
+    set_field(tmp856.*.ind2, 0)
+    marc_paste(tmp856)
+end
 marc_remove('856[4,0]m')
 marc_remove('856[4,0]q')
 marc_set('856[4,0]3', 'Volltext')
