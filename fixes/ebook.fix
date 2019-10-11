@@ -139,27 +139,29 @@ end
 do marc_each()
 # Fix multiple 020 and duplicate ISBN in 776
     if marc_has('020')
-        marc_replace_all('020a', '(\d{13}).*$', '$1')
-        marc_replace_all('020z', '(\d{13}).*$', '$1')
-        if exists(first020)
-            if marc_has('020a')
-                marc_map('020a', tmpIsbn)
-            elsif marc_has('020z')
-                marc_map('020z', tmpIsbn)
+        unless any_match(sigel, 'ZDB-33-EBS')
+            marc_replace_all('020a', '(\d{13}).*$', '$1')
+            marc_replace_all('020z', '(\d{13}).*$', '$1')
+            if exists(first020)
+                if marc_has('020a')
+                    marc_map('020a', tmpIsbn)
+                elsif marc_has('020z')
+                    marc_map('020z', tmpIsbn)
+                end
+                unless in(tmpIsbn, isbn776)
+                    marc_add('776', ind1, '0', ind2, '8', i, 'Erscheint auch als', n, 'Druckausgabe', z, $.tmpIsbn)
+                end
+                marc_remove('020')
+            else
+                marc_map('020a', first020)
+                marc_set('020c', 'eBook')
+                marc_remove('0209')
             end
-            unless in(tmpIsbn, isbn776)
-                marc_add('776', ind1, '0', ind2, '8', i, 'Erscheint auch als', n, 'Druckausgabe', z, $.tmpIsbn)
+        elsif marc_has('776[1]z')
+            marc_map('776z', tmp776z)
+            if in(first020, tmp776z)
+                marc_remove('776')
             end
-            marc_remove('020')
-        else
-            marc_map('020a', first020)
-            marc_set('020c', 'eBook')
-            marc_remove('0209')
-        end
-    elsif marc_has('776[1]z')
-        marc_map('776z', tmp776z)
-        if in(first020, tmp776z)
-            marc_remove('776')
         end
 # Fix 1X0 and 7X0
     elsif marc_has('100')
