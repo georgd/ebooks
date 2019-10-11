@@ -77,7 +77,15 @@ if marc_match('0242', 'DOI')
     marc_set('0242', 'doi')
 end
 
-unless marc_match('024a', '10.\d{4,}(\.\d+)*/.+')
+if marc_match('024a', '10.\d{4,}(\.\d+)*/.+')
+    unless marc_match('856[4,0]u', 'https?://(dx\.)?doi\.org/10\.\d{4,}/.+')
+        marc_map('024a', doilink)
+        replace_all(doilink, '^.*?(10\.\d{4,}/.+)$', '$1')
+        prepend(doilink, 'https://doi.org/')
+        marc_remove('856[4,0]')
+        marc_add('856', ind1, '4', ind2, '0', u, $.doilink, x, 'Resolving-System', 3, 'Volltext')
+    end
+else
     do marc_each()
         if marc_match('856u', '10.\d{4,}(\.\d+)*/.+$')
             marc_map('856u', doi)
