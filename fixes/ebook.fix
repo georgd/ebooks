@@ -157,7 +157,8 @@ do marc_each()
                 marc_set('020c', 'eBook')
                 marc_remove('0209')
             end
-        elsif marc_has('776[1]z')
+        end
+        if marc_has('776[1]z')
             marc_map('776z', tmp776z)
             if in(first020, tmp776z)
                 marc_remove('776')
