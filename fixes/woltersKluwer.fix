@@ -1,0 +1,44 @@
+marc_set('LDR/7', 'm')
+
+marc_remove('040a')
+marc_remove('040c')
+
+marc_remove('044')
+marc_add('044', a, 'XA-NL')
+
+marc_replace_all('245a', '(.+) \d{4}$', '$1')
+marc_replace_all('245a', '(.+\([^)]+) - \d{4}\)$', '$1)')
+marc_replace_all('245b', '(.+) \d{4}$', '$1')
+marc_replace_all('245b', '(.+\([^)]+) - \d{4}\)$', '$1)')
+
+marc_set('264a', 'Alphen aan den Rijn')
+marc_set('264b', 'Wolters Kluwer')
+marc_replace_all('264c', '\[?(\d{4}).*', '$1')
+
+marc_remove('300b')
+
+if marc_match('504a', 'Includes bibliographical references')
+    marc_remove('504')
+    marc_add('500', a, 'Enthält Literaturangaben')
+end
+
+marc_remove('588')
+
+marc_map('655[,3]a', tmp_655)
+marc_remove('655[,3]')
+if is_string(tmp_655)
+    marc_add('655', ind2, '7', a, $.tmp_655)
+end
+
+do marc_each()
+    if marc_has('776')
+        marc_map('776z', tmp_776z)
+        marc_remove('776')
+        marc_add('776', ind1, '0', ind2, '8', i, 'Erscheint auch als', n, 'Druck-Ausgabe', z, $.tmp_776z)
+    end
+    if marc_has('856')
+        marc_remove('8563')
+        marc_set('856x', 'Verlag')
+        marc_set('8563', 'Volltext')
+    end
+end
