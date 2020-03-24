@@ -258,6 +258,14 @@ do marc_each()
                 unless exists('tmp_contributor')
                     marc_map('710a', 'tmp_c_contributor')
                 end
+            elsif marc_match('710e', '(?i)issuing body')
+                # Fix Wolters Kluwer publisher entry in 710
+                if marc_match('710a', 'Wolters Kluwer')
+                    marc_set('710a', 'Wolters Kluwer NV')
+                    marc_set('710g', 'Amsterdam')
+                    marc_set('7100', '(DE-588)10020335-8')
+                end
+                marc_set('7104', 'pbl')
             end
         else
             unless marc_has('7104')
@@ -396,6 +404,7 @@ marc_remove('830')
 marc_replace_all('100a', '^(.+[\s.-]\w\.|.*\w{2,}|.+\w{2,}\.)[,.],?$', '$1')
 marc_replace_all('700a', '^(.+[\s.-]\w\.|.*\w{2,}|.+\w{2,}\.)[,.],?$', '$1')
 
+marc_replace_all('245c', '^(.+?)\s*[;/:,]\s*$', '$1')
 marc_replace_all('250a', '^(.+?)\s*[\.;/:,]\s*$', '$1')
 
 # ISBD-Interpunktion in Veröffentlichungsangaben entfernen
@@ -426,6 +435,7 @@ marc_replace_all('650v', '(.+)\.$', '$1')
 marc_replace_all('650x', '(.+)\.$', '$1')
 marc_replace_all('650y', '(.+)\.$', '$1')
 marc_replace_all('650z', '(.+)\.$', '$1')
+marc_replace_all('655a', '(.+)\.$', '$1')
 marc_replace_all('776i', '(.+)\s*:\s*$', '$1')
 
 if any_match(sigel, 'ZDB-197')
@@ -460,6 +470,8 @@ elsif exists(sigel)
         paste(tmp035, tmpOUP,tmp001, join_char:"")
         marc_add('035', a, $.tmp035)
         marc_add('912', a, $.sigel)
+    elsif any_match(sigel, 'ZDB-48-')
+        include ('../fixes/woltersKluwer.fix')
     else
         unless marc_match('912a', sigel)
             marc_add('912', a, $.sigel)
