@@ -1,0 +1,45 @@
+marc_remove('020c')
+marc_set('020q', 'eBook')
+
+marc_map('001', tmp_id)
+prepend(tmp_id, '(EEP)')
+marc_add('035', a, $.tmp_id)
+
+marc_remove('040')
+marc_add('040', b, 'eng', e, 'rda')
+
+marc_replace_all('111n', '^\(([^()]+)\s*$', '$1')
+marc_replace_all('111c', '^([^)]+)\)$', '$1')
+
+marc_replace_all('264b', 'Edward Elgar Pub\.', 'Edward Elgar Publishing')
+
+if marc_match('504a', 'Includes bibliographical references')
+    marc_remove('504')
+    marc_add('500', a, 'Enthält Literaturangaben')
+end
+
+marc_remove('588')
+marc_remove('655[,7]2')
+marc_remove('830')
+
+do marc_each()
+    if marc_match('710a', 'Edward Elgar Publishing')
+        marc_remove('710')
+    elsif marc_has('776')
+        marc_cut(776, tmp776)
+        add_field(tmp_i.i, 'Erscheint auch als')
+        add_field(tmp_n.n, 'Druck-Ausgabe')
+        copy_field(tmp_n, tmp776.*.subfields.$prepend)
+        copy_field(tmp_i, tmp776.*.subfields.$prepend)
+        set_field(tmp776.*.ind1, '0')
+        set_field(tmp776.*.ind2, '8')
+        marc_paste(tmp776)
+        marc_replace_all('776z', '^.*?((978)?\d{9}[Xx\d]).*$', '$1')
+    elsif marc_has('856')
+        marc_replace_all('856u', '^http:', 'https:')
+        marc_remove('8563')
+        marc_set('856x', 'Verlag')
+        marc_set('8563', 'Volltext')
+    end
+end
+
