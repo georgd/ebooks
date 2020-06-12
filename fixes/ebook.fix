@@ -231,8 +231,18 @@ do marc_each()
                 copy_field('tmp_author', 'tmp245c.$append')
             elsif marc_match('700e',  '[Ee]ditor|[Hh]rsg|[Hh]erausgeber')
                 marc_set('7004', 'edt')
-                unless exists('tmp_editor')
-                    marc_map('700a', 'tmp_editor')
+                # Special behaviour for Kluwer
+                if any_match(sigel, 'ZDB-48-')
+                    marc_map('700a', 'tmp_edt')
+                    split_field('tmp_edt', ',\s+')
+                    reverse('tmp_edt')
+                    join_field('tmp_edt', ' ')
+                    copy_field('tmp_edt', 'tmp_c_editor.$append')
+                    #join_field('tmp_c_editor', ', ')
+                else
+                    unless exists('tmp_editor')
+                        marc_map('700a', 'tmp_editor')
+                    end
                 end
             elsif marc_match('700e', '[Cc]ontributor')
                 marc_set('7004', 'ctb')
@@ -483,7 +493,7 @@ elsif exists(sigel)
         paste(tmp035, tmpOUP,tmp001, join_char:"")
         marc_add('035', a, $.tmp035)
         marc_add('912', a, $.sigel)
-    elsif any_match(sigel, 'ZDB-48-')
+    elsif any_match(sigel, 'ZDB-48-') # Kluwer
         include ('../fixes/woltersKluwer.fix')
     else
         unless marc_match('912a', sigel)

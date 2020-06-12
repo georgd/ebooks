@@ -1,15 +1,31 @@
 marc_set('LDR/7', 'm')
 
+marc_map('001', tmp_id)
+prepend(tmp_id, '(Kluwer)')
+marc_add('035', a, $.tmp_id)
+
+marc_remove('020c')
+marc_set('020q', 'eBook')
 marc_remove('040a')
 marc_remove('040c')
 
 marc_remove('044')
-marc_add('044', a, 'XA-NL')
+marc_add('044', c, 'XA-NL')
 
-marc_replace_all('245a', '(.+) \d{4}$', '$1')
-marc_replace_all('245a', '(.+\([^)]+) - \d{4}\)$', '$1)')
-marc_replace_all('245b', '(.+) \d{4}$', '$1')
-marc_replace_all('245b', '(.+\([^)]+) - \d{4}\)$', '$1)')
+if marc_match('245a', '.+ \([^)]*\d{4}\)[!?]$')
+    marc_replace_all('245a', '(.+) \(\d{4}\)([!?])$', '$1$2')
+    marc_replace_all('245a', '(.+\([^)]+) - \d{4}\)([!?])$', '$1)$2')
+elsif marc_match('245b', '.+ \([^)]*\d{4}\)[!?]$')
+    marc_replace_all('245b', '(.+) \(\d{4}\)([!?])$', '$1$2')
+    marc_replace_all('245b', '(.+\([^)]+) - \d{4}\)([!?])$', '$1)$2')
+else
+    marc_replace_all('245a', '(.+) \(\d{4}\)$', '$1')
+    marc_replace_all('245a', '(.+\([^)]+) - \d{4}\)$', '$1)')
+    marc_replace_all('245b', '(.+) \(\d{4}\)$', '$1')
+    marc_replace_all('245b', '(.+\([^)]+) - \d{4}\)$', '$1)')
+    marc_replace_all('245c', 'hrsg. von', 'edited by')
+    marc_replace_all('245c',  ' \(Mitarb.\)', '')
+end
 
 marc_set('264a', 'Alphen aan den Rijn')
 marc_set('264b', 'Wolters Kluwer')
@@ -37,6 +53,7 @@ do marc_each()
         marc_add('776', ind1, '0', ind2, '8', i, 'Erscheint auch als', n, 'Druck-Ausgabe', z, $.tmp_776z)
     end
     if marc_has('856')
+        marc_replace_all('856u', '^http:', 'https:')
         marc_remove('8563')
         marc_set('856x', 'Verlag')
         marc_set('8563', 'Volltext')
