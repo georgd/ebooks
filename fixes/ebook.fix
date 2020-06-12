@@ -137,6 +137,12 @@ if marc_match('776[0,8]z', '\d{13}')
     end
 end
 
+# ISBD-Interpunktion in Personen entfernen
+marc_replace_all('100a', '^(.+[\s.-]\w\.|.*\w{2,}|.+\w{2,}\.)[,.],?$', '$1')
+marc_replace_all('111n', '^(.+[\s.-]\w\.|.*\w{2,}|.+\w{2,}\.)\s*[,.:],?$', '$1')
+marc_replace_all('111d', '^(.+[\s.-]\w\.|.*\w{2,}|.+\w{2,}\.)\s*[,.:],?$', '$1')
+marc_replace_all('700a', '^(.+[\s.-]\w\.|.*\w{2,}|.+\w{2,}\.)[,.],?$', '$1')
+
 # Loop over all MARC fields individually
 do marc_each()
 # Fix multiple 020 and duplicate ISBN in 776
@@ -402,9 +408,6 @@ end
 marc_remove('830')
 
 # ISBD-Interpunktion aus diversen Kategorien entfernen
-# ISBD-Interpunktion in Personen entfernen
-marc_replace_all('100a', '^(.+[\s.-]\w\.|.*\w{2,}|.+\w{2,}\.)[,.],?$', '$1')
-marc_replace_all('700a', '^(.+[\s.-]\w\.|.*\w{2,}|.+\w{2,}\.)[,.],?$', '$1')
 
 marc_replace_all('245c', '^(.+?)\s*[;/:,]\s*$', '$1')
 marc_replace_all('250a', '^(.+?)\s*[\.;/:,]\s*$', '$1')
