@@ -22,6 +22,8 @@ marc_set('LDR/6', 'a')
 #marc_set('LDR/9', 'a')
 marc_set('LDR/17-23', '#c#4500')
 
+marc_set('007', 'cr#|||||||||||')
+
 unless marc_has('008')
     marc_add(008,_,'|||||||uuuu||||||||||||o|||||||| ||||||u')
     marc_map('260c', pubyear)
