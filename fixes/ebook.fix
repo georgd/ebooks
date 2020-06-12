@@ -371,6 +371,8 @@ if marc_has('300')
     end
     if marc_match('300b', 'digital, PDF file')
         marc_remove('300b')
+    elsif marc_match('300b', 'ill\.')
+        marc_replace_all('300b', 'ill.', 'Illustrationen')
     end
 else marc_add('300', a, '1 Online-Ressource')
 end
