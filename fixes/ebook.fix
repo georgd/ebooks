@@ -133,7 +133,7 @@ if marc_match('776[0,8]z', '\d{13}')
     replace_all(isbn776, '(\d{13}).*$', '$1')
     if marc_match('776[0,8]i', 'Print version')
         marc_remove('776[0,8]')
-        marc_add('776', ind1, '0', ind2, '8', i, 'Erscheint auch als', n, 'Druckausgabe', z, $.isbn776)
+        marc_add('776', ind1, '0', ind2, '8', i, 'Erscheint auch als', n, 'Druck-Ausgabe', z, $.isbn776)
     end
 end
 
@@ -151,7 +151,7 @@ do marc_each()
                     marc_map('020z', tmpIsbn)
                 end
                 unless in(tmpIsbn, isbn776)
-                    marc_add('776', ind1, '0', ind2, '8', i, 'Erscheint auch als', n, 'Druckausgabe', z, $.tmpIsbn)
+                    marc_add('776', ind1, '0', ind2, '8', i, 'Erscheint auch als', n, 'Druck-Ausgabe', z, $.tmpIsbn)
                 end
                 marc_remove('020')
             else
@@ -487,7 +487,7 @@ if marc_match('912a', 'ZDB-73-') # Campus
         marc_map('775[0,8]0', tmp776isbn)
         replace_all(tmp776isbn, '\(DE-600\)(\d+)', '$1')
         marc_remove('775[0,8]')
-        marc_add('776', ind1, '0', ind2, '8', i, 'Erscheint auch als', n, 'Druckausgabe')
+        marc_add('776', ind1, '0', ind2, '8', i, 'Erscheint auch als', n, 'Druck-Ausgabe')
         marc_set('776[0,8]z', $.tmp776isbn)
     end
     marc_remove('935')
