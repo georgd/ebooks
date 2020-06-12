@@ -346,7 +346,11 @@ if marc_has('260')
 end
 
 # Veröffentlichungsdatum auf Jahreszahl einschränken
-marc_replace_all('264c', '(\d{4})\d+', '$1')
+if marc_match('264c', 'c\d{4}')
+    marc_replace_all('264c', '.*?c(\d{4}).*', '[$1]')
+else
+    marc_replace_all('264c', '(\d{4})\d+', '$1')
+end
 
 # Spezialfall Campusverlag: Ort aus Verlagsnamen entfernen
 marc_replace_all('264b', 'Campus Frankfurt / New York', 'Campus')
