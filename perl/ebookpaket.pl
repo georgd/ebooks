@@ -42,6 +42,8 @@ GetOptions(#'verbose|v'       => \my $verbose,
            'output|o=s'      => \my $output,
            'sigel|s=s'       => \my $sigel,
            'fixfile|fix|f=s' => \my $fixfile,
+           'ebasigel|e=s'    => \my $ebasigel,
+           'ebadate|x=s'     => \my $ebadate,
            'batch|b'         => \my $isfilter,
            'marc8|m'         => \my $marc8,
            'type|t=s'        => $type,
@@ -130,6 +132,8 @@ my $fixer = Catmandu::Fix->new(
                    MARC2ISO => "${datadir}${SEP}marc2iso3166H.csv",
                    sigel    => uc($sigel),
                    today    => $today,
+                   ebasigel => $ebasigel,
+                   ebadate  => $ebadate,
                  },
     fixes => [$fixfile],
 );
@@ -160,6 +164,8 @@ $0 --input <Dateipfad> [--output <Dateipfad> --sigel <sigel> --verbose --debug -
     --output    -o          Pfad/Dateiname für die Ausgabedatei
     --sigel     -s          Ein spezifisches Paketsigel (optional - wird, wenn
                             möglich vom Fix-File eingetragen. Nötig bei Nomos!
+    --ebasigel  -e          Produktsigel für EBA-Paket
+    --ebadate   -x          Datum des Upatepakets
 
 EOF
     exit;

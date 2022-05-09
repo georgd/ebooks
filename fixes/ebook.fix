@@ -13,6 +13,13 @@ if any_match('sigel', '___')
     remove_field('sigel')
 end
 
+add_field(ebasigel, {{ebasigel}})
+add_field(ebadate, {{ebadate}})
+if is_null(ebasigel)
+    remove_field('ebasigel')
+    remove_field('ebadate')
+end
+
 # default to UCS/Unicode if LDR/9 is not set
 if marc_match('LDR/9', ' ')
     marc_set('LDR/9', 'a')
@@ -474,8 +481,16 @@ if marc_match('856[4,0]u', 'https?://(dx\.)?doi\.org/10\.\d{4,}/.+')
     marc_set('856[4,0]x', 'Resolving-System')
 end
 
-# E-Book-Sigel
-if marc_match('003', 'Vahlen')
+# E-Book-Sigel and publisher specific fixes
+
+if exists(ebasigel)
+     if any_match(ebasigel, 'VFV-VEL-EBA-EB')
+        include('../fixes/vahlenEba.fix')
+        marc_add('990', a, $.ebasigel, b, $.ebadate)
+        #marc_set('9509', 'LOCAL')
+    end
+elsif marc_match('003', 'Vahlen')
+#if marc_match('003', 'Vahlen')
     include ('../fixes/vahlen.fix')
 elsif exists(sigel)
     if any_match(sigel, 'ZDB-18-') # Nomos
@@ -499,6 +514,10 @@ elsif exists(sigel)
     elsif any_match(sigel, 'ZDB-77-') # Edward Elgar
         include ('../fixes/edwardElgar.fix')
         marc_add('912', a, $.sigel)
+    elsif any_match(sigel, 'EEP-EEC-CORONA-EB') # Temporary Edward Elgar files
+        include ('../fixes/edwardElgar.fix')
+        marc_add('912', a, 'ZDB-77-EEC')
+        marc_add('990', a, $.sigel, b, '2020-04')
     else
         unless marc_match('912a', sigel)
             marc_add('912', a, $.sigel)

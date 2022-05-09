@@ -1,0 +1,220 @@
+############################################################
+#                                                          #
+# vahlenEba.fix - Fix-Datei für E-Bookpakete (Vahlen/EBA)  #
+#                                                          #
+# 2020-04-08 Georg Mayr-Duffner                            #
+#            georg.mayr-duffner@wu.ac.at                   #
+#                                                          #
+############################################################
+
+marc_map('001', tmp_id)
+prepend(tmp_id, '(VFV)')
+marc_add('035', a, $.tmp_id)
+marc_remove('020c')
+marc_set('020q', 'eBook')
+marc_remove('040')
+marc_add('040', b, 'ger', e, 'rda')
+
+marc_replace_all('776z', '^\D*([\dXx]+)\D*$', '$1')
+
+unless marc_match('912a', 'ZDB-128-VEL')
+    marc_add('912', a, 'ZDB-128-VEL')
+end
+
+# Beck Packages
+if marc_match('950a', 'Altertumswissenschaft')
+    marc_add('912', a, 'ZDB-18-BLA')
+end
+if marc_match('950a', 'Beck (Ö|O.)ffentliches Recht')
+    marc_add('912', a, 'ZDB-128-BJO')
+end
+if marc_match('950a', 'Beck Staatsrecht.V(ö|o.)lkerrecht')
+    marc_add('912', a, 'ZDB-18-SVR')
+end
+if marc_match('950a', 'Beck Rechtsgeschichte/Methodenlehre')
+    marc_add('912', a, 'ZDB-18-RGE')
+end
+if marc_match('950a', 'Beck Strafrecht')
+    marc_add('912', a, 'ZDB-128-BJS')
+end
+if marc_match('950a', 'Beck Wirtschaftsrecht')
+    marc_add('912', a, 'ZDB-18-BWR')
+end
+if marc_match('950a', 'Beck Zivilrecht II')
+    marc_add('912', a, 'ZDB-128-BJZ2')
+end
+if marc_match('950a', 'Beck Zivilrecht I[^I]')
+    marc_add('912', a, 'ZDB-128-BJZ1')
+end
+if marc_match('950a', 'MWV Backlistpaket')
+        marc_add('912', a, 'ZDB-999-MBL')
+end
+if marc_match('950a', 'Vahlen Backlistpaket')
+        marc_add('912', a, 'ZDB-999-VBL')
+end
+if marc_match('950a', 'Krankenhausmanagement(?! Zusatz)')
+    marc_add('912', a, 'ZDB-128-MWB')
+end
+if marc_match('950a', 'SPH Backlistpaket')
+    marc_add('912', a, 'ZDB-999-SBL')
+end
+if marc_match('950a', 'Geschichte (des 20. - 21. Jahrhunderts|20.-21. Jh)')
+    marc_add('912', a, 'ZDB-18-BLI')
+end
+if marc_match('950a', '500 Jahre Reformation')
+    marc_add('912', a, 'ZDB-18-BLJ')
+end
+if marc_match('950a', 'Geschichte (des Mittelalters|MA)')
+        marc_add('912', a, 'ZDB-18-BLC')
+end
+if marc_match('950a', 'Literatur und Sprache')
+    marc_add('912', a, 'ZDB-18-BLB')
+end
+if marc_match('950a', 'Naturkunde, Psychologie.+Medizin')
+    marc_add('912', a, 'ZDB-18-BLE')
+end
+if marc_match('950a', 'Philosophie')
+    marc_add('912', a, 'ZDB-18-BLF')
+end
+if marc_match('950a', 'Politik, Wirtschaft.+Gesellschaft')
+    marc_add('912', a, 'ZDB-18-BLG')
+end
+if marc_match('950a', 'Religion und Theologie')
+    marc_add('912', a, 'ZDB-18-BLH')
+end
+if marc_match('950a', 'Gesundheits(ö|o.)konomie')
+    marc_add('912', a, 'ZDB-128-MWG')
+end
+if marc_match('950a', 'Krankenhausmanagement Zusatz')
+    marc_add('912', a, 'ZDB-128-MWZ')
+end
+
+# SPH
+if marc_match('950a', 'SPH Allgemeine BWL')
+    marc_add('912', a, 'ZDB-18-BSB')
+end
+if marc_match('950a', 'SPH Buchf(ü|u.)hrung, Bilanzierung und Steuern')
+    marc_add('912', a, 'ZDB-18-BSJ')
+end
+if marc_match('950a', 'SPH Investitionen')
+    marc_add('912', a, 'ZDB-18-BSI')
+end
+if marc_match('950a', 'SPH Kostenrechnung')
+    marc_add('912', a, 'ZDB-18-BSQ')
+end
+if marc_match('950a', 'SPH Management')
+    marc_add('912', a, 'ZDB-18-BSM')
+end
+if marc_match('950a', 'SPH Marketing, Vertrieb, Handel')
+    marc_add('912', a, 'ZDB-18-BSN')
+end
+if marc_match('950a', 'SPH Personalmanagement')
+    marc_add('912', a, 'ZDB-18-BSX')
+end
+if marc_match('950a', 'SPH Steuern.+Lehrbuch')
+    marc_add('912', a, 'ZDB-18-BSL')
+end
+if marc_match('950a', 'SPH Verwalter, Wohnungswirt')
+    marc_add('912', a, 'ZDB-18-BSW')
+end
+if marc_match('950a', 'SPH Volkswirtschaftslehre')
+    marc_add('912', a, 'ZDB-18-BSV')
+end
+
+# UVK
+if marc_match('950a', 'UVK Ratgeber Beruf')
+    marc_add('912', a, 'ZDB-128-RAB')
+end
+if marc_match('950a', 'UVK Finance')
+    marc_add('912', a, 'ZDB-128-UFI')
+end
+if marc_match('950a', 'UVK Management.+Marketing')
+    marc_add('912', a, 'ZDB-128-UMM')
+end
+if marc_match('950a', 'UVK Rechnungswesen und Controlling')
+    marc_add('912', a, 'ZDB-128-URC')
+end
+if marc_match('950a', 'UVK Richtig Studieren')
+    marc_add('912', a, 'ZDB-128-UST')
+end
+if marc_match('950a', 'UVK Special')
+    marc_add('912', a, 'ZDB-999-UVS')
+end
+if marc_match('950a', 'UVK Tourismusmanagement')
+    marc_add('912', a, 'ZDB-128-UTM')
+end
+if marc_match('950a', 'UVK Wirtschaftswissen')
+    marc_add('912', a, 'ZDB-128-UWW')
+end
+
+# Beck BEL
+if marc_match('950a', 'Beck Verwaltungsrecht')
+    marc_add('912', a, 'ZDB-999-VWR')
+end
+if marc_match('950a', 'Literatur, Kunst, Musik')
+    marc_add('912', a, 'ZDB-999-LKM')
+end
+
+# Versus
+if marc_match('950a', 'Versus Allg.+ Betriebswirtschaftslehre')
+    marc_add('912', a, 'ZDB-128-VVA')
+end
+if marc_match('950a', 'Versus Kommunikation und Innovation')
+    marc_add('912', a, 'ZDB-18-VKI')
+end
+if marc_match('950a', 'Versus kompakt BWL')
+    marc_add('912', a, 'ZDB-18-VVK')
+end
+if marc_match('950a', 'Versus kompakt Management')
+    marc_add('912', a, 'ZDB-18-VVM')
+end
+
+# Vahlen Packages
+if marc_match('950a', '(Vahlen.*)?Allgem(\.|eine) Betriebswirtschaftslehre')
+    marc_add('912', a, 'ZDB-128-VAB')
+end
+if marc_match('950a', 'Buchf(ü|u.)hrung, Bilanz, Steuern')
+    marc_add('912', a, 'ZDB-128-VBB')
+end
+if marc_match('950a', '^(Vahlen.+)?Investition und Finanzierung')
+    marc_add('912', a, 'ZDB-128-VIF')
+end
+if marc_match('950a', 'Kostenrechnung und Controlling')
+    marc_add('912', a, 'ZDB-128-VKC')
+end
+if marc_match('950a', 'Marketing und Handel')
+    marc_add('912', a, 'ZDB-128-VMH')
+end
+if marc_match('950a', 'Mathematik f(ü|u.)r Wirtschaftswiss.+')
+    marc_add('912', a, 'ZDB-128-VMW')
+end
+if marc_match('950a', '^(Vahlen.+)?Personalmanagement')
+    marc_add('912', a, 'ZDB-128-VPM')
+end
+if marc_match('950a', 'Produktion und Logistik')
+    marc_add('912', a, 'ZDB-128-VPL')
+end
+if marc_match('950a', 'Recht f(ü|u.)r Wirtschaftswissenschaftler')
+    marc_add('912', a, 'ZDB-128-VRW')
+end
+if marc_match('950a', 'Unternehmensf(ü|u.)hrung, (Mgmt|Management), Orga.*')
+    marc_add('912', a, 'ZDB-128-VUM')
+end
+if marc_match('950a', '^(Vahlen.+)?Volkswirtschaftslehre')
+    marc_add('912', a, 'ZDB-128-VVW')
+end
+if marc_match('950a', 'Vahlen (Ö|O.)ffentliches Recht')
+    marc_add('912', a, 'ZDB-128-VJR')
+end
+if marc_match('950a', 'Vahlen.* Strafrecht.*')
+    marc_add('912', a, 'ZDB-128-VJS')
+end
+if marc_match('950a', 'Vahlen Zivilrecht II')
+    marc_add('912', a, 'ZDB-128-ZR2')
+end
+if marc_match('950a', 'Vahlen Zivilrecht I[^I]')
+    marc_add('912', a, 'ZDB-128-ZR1')
+end
+if marc_match('950a', 'Vahlen Referendariat')
+    marc_add('912', a, 'ZDB-128-JUR')
+end
