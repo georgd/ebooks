@@ -1,0 +1,31 @@
+###################################
+# Fix file for IMF specific fixes #
+# version 2022-05-10              #
+###################################
+
+if marc_has('830v')
+    marc_map('830v', tmpVolume)
+end
+do marc_each()
+    if marc_has('020')
+        marc_remove('020c')
+        if marc_has('020z')
+            marc_map('020z', tmpIsbn)
+            marc_remove('020z')
+            marc_set('020a', $.tmpIsbn)
+        end
+    elsif marc_has('040')
+        marc_set('040b', 'ger')
+    elsif marc_has('110')
+        marc_replace_all('110a', '^(.+?)\s*[/:\.]\s*$', '$1')
+    elsif marc_has('300')
+        marc_replace_all('300a', 'online resource', 'Online-Ressource')
+        marc_replace_all('300a', 'pages', 'Seiten')
+    elsif marc_has('490')
+        if exists(tmpVolume)
+            marc_set('490v', $.tmpVolume)
+        end
+    elsif marc_has('776[0,8]')
+        marc_remove('776')
+    end
+end

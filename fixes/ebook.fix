@@ -226,6 +226,9 @@ do marc_each()
 
     elsif marc_has('110')
         marc_map('110a', 'tmp245c.$append', join: " , ")
+        unless marc_has('1104')
+            marc_set('1104', 'aut')
+        end
 
     elsif marc_has('700')
         if marc_has('700e')
@@ -347,9 +350,9 @@ if any_match(title.*.subfields.*.a,  '(?i)^(eines|einem|einen|einer|eine|der|die
     replace_all(title.*.subfields.*.a, '(?i)^(eines|einem|einen|einer|eine|der|die|das|des|dem|den|ein|the|an|a)\s', '<<$1>> ')
     set_field(title.*.ind2, 0)
 end
-replace_all(title.*.subfields.*.a, '^(.+?)\s*[/:\.]$', '$1')
-replace_all(title.*.subfields.*.b, '^(.+?)\s*[/:\.]$', '$1')
-replace_all(title.*.subfields.*.c, '^(.+)\.$', '$1')
+replace_all(title.*.subfields.*.a, '^(.+?)\s*[/:\.]\s*$', '$1')
+replace_all(title.*.subfields.*.b, '^(.+?)\s*[/:\.]\s*$', '$1')
+replace_all(title.*.subfields.*.c, '^(.+)\.\s*$', '$1')
 replace_all(title.*.subfields.*.n, '^(.+?)\s*[/,\.]$', '$1')
 replace_all(title.*.subfields.*.p, '^(.+?)\s*[/,:\.]$', '$1')
 marc_paste(title)
@@ -430,7 +433,6 @@ if marc_has('490[1]')
     marc_paste(tmp490)
 end
  
-marc_remove('830')
 
 # ISBD-Interpunktion aus diversen Kategorien entfernen
 
@@ -518,6 +520,9 @@ elsif exists(sigel)
         include ('../fixes/edwardElgar.fix')
         marc_add('912', a, 'ZDB-77-EEC')
         marc_add('990', a, $.sigel, b, '2020-04')
+    elsif any_match(sigel, 'ZDB-1-IMF')
+        include ('../fixes/imf.fix')
+        marc_add('912', a, $.sigel)
     else
         unless marc_match('912a', sigel)
             marc_add('912', a, $.sigel)
@@ -540,5 +545,6 @@ end
 marc_remove('912b')
 marc_remove('003')
 marc_remove('006')
+marc_remove('830')
 
 marc_sort()
