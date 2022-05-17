@@ -29,3 +29,4 @@ do marc_each()
         marc_remove('776')
     end
 end
+marc_remove('240')
