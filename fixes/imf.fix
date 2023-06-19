@@ -1,6 +1,6 @@
 ###################################
 # Fix file for IMF specific fixes #
-# version 2022-05-10              #
+# version 2022-06-08              #
 ###################################
 
 if marc_has('830v')
@@ -27,6 +27,13 @@ do marc_each()
         end
     elsif marc_has('776[0,8]')
         marc_remove('776')
+    elsif marc_has('856[4,0]')
+        if marc_match('856z', 'IMF e-Library')
+            marc_set('856x', 'Verlag')
+            marc_set('8563','Volltext')
+        else
+            marc_remove('856')
+        end
     end
 end
 marc_remove('240')
