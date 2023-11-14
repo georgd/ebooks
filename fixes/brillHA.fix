@@ -1,0 +1,23 @@
+
+################################################################
+# Fix file for Brill Hague Academy of Int'l Law specific fixes #
+# version 2022-06-08                                           #
+################################################################
+
+marc_map('001', tmp001)
+add_field(tmpBHA, '(BRILL)')
+paste(tmp035, tmpBHA,tmp001, join_char:"")
+marc_add('035', a, $.tmp035)
+
+marc_remove('040')
+marc_add('040', ind1, ' ', ind2, ' ', b, 'ger', e, 'rda')
+marc_remove('504')
+marc_remove('588')
+do marc_each()
+    if marc_has('773d')
+        marc_remove('773')
+    end
+    if marc_has('856z')
+        marc_remove('856')
+    end
+end

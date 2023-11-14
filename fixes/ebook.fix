@@ -442,7 +442,7 @@ marc_replace_all('245c', '^(.+?)\s*[;/:,]\s*$', '$1')
 marc_replace_all('250a', '^(.+?)\s*[\.;/:,]\s*$', '$1')
 
 # ISBD-Interpunktion in Veröffentlichungsangaben entfernen
-marc_replace_all('264a', '^(.+)\s[;:]\s*$', '$1')
+marc_replace_all('264a', '^(.+)\s?[;:]\s*$', '$1')
 marc_replace_all('264b', '^(.+)\s?[;,]\s*$', '$1')
 marc_replace_all('264c', '^(.+)\.\s*$', '$1')
 
@@ -524,6 +524,9 @@ elsif exists(sigel)
         marc_add('990', a, $.sigel, b, '2020-04')
     elsif any_match(sigel, 'ZDB-1-IMF')
         include ('../fixes/imf.fix')
+        marc_add('912', a, $.sigel)
+    elsif any_match(sigel, 'ZDB-95-BHA')
+        include ('../fixes/brillHA.fix')
         marc_add('912', a, $.sigel)
     else
         unless marc_match('912a', sigel)
